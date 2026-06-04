@@ -202,6 +202,27 @@ Only after those are clear, scaffold the deck and start writing.
   attributes (e.g., `<section class="slide center">`) won't match
   `<section class="slide"`. Always grep for leftovers after `replace_all`.
 
+- **Export `updateCount()` MUST use a cached slide total, NEVER `document.querySelectorAll('.slide').length`.** The export dialog's `renderThumbs()` clones each slide into thumbnails — every clone keeps the `.slide` class. After cloning, `querySelectorAll('.slide')` returns double (or more) the real count. Cache the real slide count in a module-level var (`_slideTotal`) inside `renderThumbs()` BEFORE the cloning loop, and use that cached value in `updateCount()`.
+  ```javascript
+  // ✅ Correct
+  var _slideTotal = 0;
+  function renderThumbs(){
+    grid.innerHTML = '';
+    var slides = document.querySelectorAll('.deck .slide');
+    _slideTotal = slides.length; // cache before cloning
+    slides.forEach(function(s,i){ /* clone .slide */ });
+    updateCount();
+  }
+  function updateCount(){
+    var n = dialog.querySelectorAll('.export-thumb.selected').length;
+    dialog.querySelector('#exp-count').textContent = '已选 '+n+'/'+_slideTotal;
+  }
+  // ❌ Wrong — counts cloned thumb .slide elements too
+  function updateCount(){
+    var total = document.querySelectorAll('.slide').length; // e.g. 28 instead of 14
+  }
+  ```
+
 ### Runtime chrome CSS (CRITICAL — when NOT loading `base.css`)
 
 If you choose to put all CSS inline in a `<style>` tag (instead of linking
