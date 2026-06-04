@@ -438,6 +438,8 @@
       clone.querySelectorAll('.anim-fade-up,.anim-fade-left,.anim-fade-right').forEach(function(el){el.classList.remove('anim-fade-up','anim-fade-left','anim-fade-right')});
       var css=_getAllCSS_sync();
       var rootBlock=_buildRootBlock();
+      css=css.replace(/backdrop-filter:[^;]+;/gi,'').replace(/-webkit-backdrop-filter:[^;]+;/gi,'');
+      rootBlock=rootBlock.replace(/(--shadow:)[^;]+;/,'$1 0 8px 16px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);');
       var fullCSS=_escapeXML(rootBlock+'\n'+css);
       var html=new XMLSerializer().serializeToString(clone);
       html=_escapeXML(html);
@@ -496,17 +498,20 @@
         '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
         'html,body{overflow:visible!important;margin:0!important;padding:0!important;background:#0d1117!important}'+
         '.deck{position:static!important;overflow:visible!important;background:#0d1117!important}'+
-        '.slide{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;width:1920px!important;height:1080px!important;page-break-after:always!important;break-after:page!important;transform:none!important;margin:0!important;padding:72px 96px!important;box-sizing:border-box!important;background:#0d1117!important;color:#e6edf3!important;overflow:hidden!important;flex-direction:column!important;justify-content:center!important}'+
-        '.slide::before{content:""!important}'+
+        '.slide{display:grid!important;grid-template-columns:260px 1fr!important;gap:56px!important;align-content:start!important;visibility:visible!important;opacity:1!important;position:relative!important;width:1920px!important;height:1080px!important;page-break-after:always!important;break-after:page!important;transform:none!important;margin:0!important;padding:72px 96px!important;box-sizing:border-box!important;background:#0d1117!important;color:#e6edf3!important;overflow:hidden!important}'+
+        '.slide.full{display:flex!important;flex-direction:column!important;justify-content:center!important}'+
         '.slide:last-of-type{page-break-after:avoid!important}'+
         '.export-overlay,.overview,.notes-overlay,.progress-bar,.deck-footer,.slide-number{display:none!important}}';
-      printCSS.textContent+='._pdf_show_{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;transform:none!important;background:#0d1117!important}._pdf_hide_{display:none!important}';
+      printCSS.textContent+='._pdf_show_{visibility:visible!important;opacity:1!important;position:relative!important;transform:none!important;background:#0d1117!important}._pdf_hide_{display:none!important}';
       document.head.appendChild(printCSS);
       var origClasses=[];
       slides.forEach(function(s,i){origClasses.push(s.className);if(selectedSet.has(i))s.classList.add('_pdf_show_');else s.classList.add('_pdf_hide_')});
       _hideExportProgress();toggleExportDialog(false);
+      var _origTitle=document.title;
+      document.title=_getExportFilename('pdf','_svg').replace('.pdf','');
       setTimeout(function(){
         window.print();
+        document.title=_origTitle;
         slides.forEach(function(s,i){s.className=origClasses[i]});
         if(printCSS.parentNode)printCSS.parentNode.removeChild(printCSS);
       },350);
@@ -598,6 +603,8 @@
 
         var css=_getAllCSS_sync();
         var rootBlock=_buildRootBlock();
+        css=css.replace(/backdrop-filter:[^;]+;/gi,'').replace(/-webkit-backdrop-filter:[^;]+;/gi,'');
+        rootBlock=rootBlock.replace(/(--shadow:)[^;]+;/,'$1 0 8px 16px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);');
         var fullCSS=_escapeXML(rootBlock+'\n'+css);
         var html=new XMLSerializer().serializeToString(clone);
         html=_escapeXML(html);

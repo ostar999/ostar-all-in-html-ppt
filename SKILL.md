@@ -185,6 +185,11 @@ the deck in a browser, press `P`, and confirm:
 2. Click "导出 PDF (SVG)" or "导出 SVG (.zip)" — the download starts.
 3. Open the downloaded file — layout, colors, fonts, and terminal blocks match the browser rendering.
 
+**📖 See [references/export-pitfalls.md](references/export-pitfalls.md) for a
+catalog of known export bugs, root causes, and verified fixes.** This is the
+accumulated knowledge from real-world deck debugging — read it before
+troubleshooting any P-key export issue.
+
 If ANY of the above fails, run the checklist below BEFORE telling the user the deck is done.
 The same checklist applies when the user switches themes, templates, or adds animations —
 the inline `<style>` must stay in sync with every change.
@@ -199,6 +204,12 @@ the inline `<style>` must stay in sync with every change.
 6. ☐ Does `.export-thumb.selected` use `border-color: var(--accent-2)` (NOT `--accent`)?
 7. ☐ If user switched themes: are `:root` token values updated to the new theme?
 8. ☐ If user added animations: are the `@keyframes` definitions present in inline `<style>`?
+9. ☐ **Grid layout slides**: does print CSS use `display:grid` (not `display:flex`)? Does `.slide.full` have its own `display:flex` rule?
+10. ☐ **No `::before` on grid `.slide`** in print CSS — it becomes an unwanted grid item occupying the first column.
+11. ☐ **`._pdf_show_` must NOT set `display`** — it overrides the grid/flex rules. Only use it for visibility/opacity/position.
+12. ☐ **`backdrop-filter` stripped** in `slideToSVG()` and `slideToPNGBlob()` — SVG foreignObject does not support it, causing blocky artifacts.
+13. ☐ **`@media print` resets `.gradient-text`** to solid `var(--accent)` — `background-clip:text` fails in print, leaving visible gradient rectangles with hard edges.
+14. ☐ **SVG PDF export filename** — `exportToPDFSVG()` must set `document.title` to include `_svg` suffix before `window.print()`.
 
 ---
 
