@@ -1,17 +1,24 @@
-# html-ppt · HTML PPT 工作室
+# ostar-all-in-html-ppt · 全能 HTML PPT 工作室
 
 > 一款专业级的 AgentSkill，让 AI 做出真正能打的 HTML 演示文稿。
 > **36 套主题**、**15 套完整 deck 模板**、**31 种页面布局**、**47 个动效**
-> (27 个 CSS + 20 个 Canvas FX)，加上全新的 **演讲者模式** —— 像素级
-> 完美预览 + 逐字稿提词器 + 计时器。纯静态 HTML/CSS/JS，无需构建。
+> (27 个 CSS + 20 个 Canvas FX)，**演讲者模式**（像素级完美预览 + 逐字稿
+> 提词器 + 计时器），以及**内置 PDF/SVG 一键导出**。纯静态 HTML/CSS/JS，
+> 无需构建。
 
-**作者：** lewis &lt;sudolewis@gmail.com&gt;
-**协议：** MIT
+**原作者：** lewis &lt;sudolewis@gmail.com&gt; · **Fork & 改进：** [ostar999](https://github.com/ostar999)
+**协议：** MIT（继承自 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill)）
 **English docs:** [README.md](README.md)
+
+> 🍴 本项目基于 **lewis** 的优秀作品 [html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) Fork 改进。
+> 衷心感谢 lewis 创建了原始的 HTML PPT Studio 并以 MIT 协议开源。
+> 我们新增了 **P 键导出系统**（PDF 浏览器原生打印 + SVG JSZip 打包）、将导出功能
+> 直接集成到 `runtime.js` 和 `base.css` 中（所有 deck 自动获得）、并更名为
+> ostar-all-in-html-ppt。所有原始功能完整保留，MIT 协议继承。
 
 ![html-ppt 封面 · 实时预览](docs/readme/hero.gif)
 
-> 一行命令装好 **36 主题 × 20 Canvas FX × 31 布局 × 15 完整 deck + 演讲者模式**。
+> 一行命令装好 **36 主题 × 20 Canvas FX × 31 布局 × 15 完整 deck + 演讲者模式 + PDF/SVG 导出**。
 > 上图里的每一个预览都是真实的 iframe 加载真实模板文件 —— 不是截图，不是色卡。
 
 ## 🎤 演讲者模式（全新）

@@ -1,18 +1,25 @@
-# html-ppt — HTML PPT Studio
+# ostar-all-in-html-ppt — All-in-One HTML PPT Studio
 
 > A world-class AgentSkill for producing professional HTML presentations in
 > **36 themes**, **15 full-deck templates**, **31 page layouts**,
-> **47 animations** (27 CSS + 20 canvas FX), and a **true presenter mode**
-> with pixel-perfect previews + speaker script + timer — all pure static
-> HTML/CSS/JS, no build step.
+> **47 animations** (27 CSS + 20 canvas FX), a **true presenter mode**
+> with pixel-perfect previews + speaker script + timer, and a **built-in
+> PDF/SVG export** with thumbnail picker — all pure static HTML/CSS/JS,
+> no build step.
 
-**Author:** lewis &lt;sudolewis@gmail.com&gt;
-**License:** MIT
+**Author:** lewis &lt;sudolewis@gmail.com&gt; · **Fork & improvements:** [ostar999](https://github.com/ostar999)
+**License:** MIT (inherited from [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill))
 **中文文档:** [README.zh-CN.md](README.zh-CN.md)
+
+> 🍴 This project is a fork of the excellent [html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) by **lewis**.
+> Huge thanks to lewis for creating the original HTML PPT Studio and releasing it under MIT.
+> We've added a **P-key export system** (PDF via browser print + SVG via JSZip), integrated it
+> directly into `runtime.js` and `base.css` so every deck gets it automatically, and renamed the
+> skill to reflect its all-in-one nature. All original features remain intact and MIT-licensed.
 
 ![html-ppt — cover with live previews](docs/readme/hero.gif)
 
-> One command installs **36 themes × 20 canvas FX × 31 layouts × 15 full decks + presenter mode**. Every preview above is a live iframe of a real template file rendering inside the deck — no screenshots, no mock-ups.
+> One command installs **36 themes × 20 canvas FX × 31 layouts × 15 full decks + presenter mode + PDF/SVG export**. Every preview above is a live iframe of a real template file rendering inside the deck — no screenshots, no mock-ups.
 
 ## 🎤 Presenter Mode (new!)
 
