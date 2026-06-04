@@ -131,8 +131,13 @@ Only after those are clear, scaffold the deck and start writing.
   Good: `color: var(--text-1)`. Bad: `color: #111`.
 - **Don't invent new layout files.** Prefer composing existing ones. Only add
   a new `templates/single-page/*.html` if none of the 30 fit.
-- **Respect chrome slots.** `.deck-header`, `.deck-footer`, `.slide-number`
-  and the progress bar are provided by `assets/base.css` + `runtime.js`.
+- **Respect chrome slots.** `.deck-header`, `.slide-number` and the progress
+  bar are provided by `assets/base.css` + `runtime.js`.
+- **Do NOT add `.deck-footer` by default.** `.deck-footer` uses `position:absolute`
+  and can overlap with slide content (especially centered layouts like Cover).
+  Only add it if the user explicitly asks for tags or page numbers in the footer.
+  If added, you MUST visually verify that it does not overlap with any slide
+  content on every page — test at different viewport sizes.
 - **Keyboard-first.** Always include `<script src="../assets/runtime.js"></script>`
   so the deck supports ← → / T / A / F / P / S / O / hash deep-links.
 - **One `.slide` per logical page.** `runtime.js` makes `.slide.is-active`
