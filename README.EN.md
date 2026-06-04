@@ -44,6 +44,16 @@ full authoring guide, or copy the ready-made template at
 `templates/full-decks/presenter-mode-reveal/` which ships with full 150-300
 word speaker scripts on every slide.
 
+## 📄 PDF / SVG Export (new!)
+
+Press `P` on any deck to open the **export dialog** with a thumbnail grid:
+
+- **Select slides** by clicking thumbnails, with Select All / Deselect All
+- **📥 Export PDF**: Uses browser native print (`@page{size:1920px 1080px}` exact 16:9). Choose "Save as PDF" → Landscape in Chrome.
+- **📦 Export SVG (.zip)**: Each slide as an independent SVG file (`foreignObject` + full CSS), packaged via JSZip.
+
+> PDF uses the browser's native rendering engine — styles, colors, gradients, and fonts match the screen perfectly. SVGs can be opened and edited in any browser.
+
 ## Install (one command)
 
 ```bash
@@ -62,6 +72,7 @@ that supports AgentSkills can author presentations by asking things like:
 | | Count | Where |
 |---|---|---|
 | 🎤 **Presenter mode** | **NEW** | `S` key / `?preview=N` |
+| 📄 **PDF/SVG export** | **NEW** | `P` key / `runtime.js` |
 | 🎨 **Themes** | **36** | `assets/themes/*.css` |
 | 📑 **Full-deck templates** | **15** | `templates/full-decks/<name>/` |
 | 🧩 **Single-page layouts** | **31** | `templates/single-page/*.html` |
@@ -158,7 +169,7 @@ module auto-initialised on slide enter via `fx-runtime.js`.
 open templates/theme-showcase.html         # all 36 themes (iframe-isolated)
 open templates/layout-showcase.html        # all 31 layouts
 open templates/animation-showcase.html     # all 47 animations
-open templates/full-decks-index.html       # all 14 full decks
+open templates/full-decks-index.html       # all 15 full decks
 
 # Render any template to PNG via headless Chrome
 ./scripts/render.sh templates/theme-showcase.html
@@ -171,11 +182,13 @@ open templates/full-decks-index.html       # all 14 full decks
 ← → Space PgUp PgDn Home End   navigate
 F                               fullscreen
 S                               open presenter window (magnetic cards)
+P                               export dialog — select slides → PDF / SVG (.zip)
 N                               quick notes drawer (bottom)
 R                               reset timer (in presenter window)
 O                               slide overview grid
 T                               cycle themes (syncs to presenter)
 A                               cycle a demo animation on current slide
+Esc                             close all overlays
 #/N (URL)                       deep-link to slide N
 ?preview=N (URL)                preview-only mode (single slide, no chrome)
 ```
@@ -185,17 +198,19 @@ A                               cycle a demo animation on current slide
 ```
 ostar-all-in-html-ppt/
 ├── SKILL.md                      agent-facing dispatcher
-├── README.md                     this file
+├── README.md                     Chinese README (default)
+├── README.EN.md                  this file
 ├── references/                   detailed catalogs
 │   ├── themes.md                 36 themes with when-to-use
 │   ├── layouts.md                31 layout types
 │   ├── animations.md             27 CSS + 20 FX catalog
-│   ├── full-decks.md             14 full-deck templates
+│   ├── full-decks.md             15 full-deck templates
+│   ├── presenter-mode.md         🎤 presenter mode + speaker script guide
 │   └── authoring-guide.md        full workflow
 ├── assets/
 │   ├── base.css                  shared tokens + primitives
 │   ├── fonts.css                 webfont imports
-│   ├── runtime.js                keyboard + presenter + overview
+│   ├── runtime.js                keyboard + presenter + export + overview
 │   ├── themes/*.css              36 theme token files
 │   └── animations/
 │       ├── animations.css        27 named CSS animations
@@ -206,8 +221,8 @@ ostar-all-in-html-ppt/
 │   ├── theme-showcase.html       iframe-isolated theme tour
 │   ├── layout-showcase.html      all 31 layouts
 │   ├── animation-showcase.html   47 animation slides
-│   ├── full-decks-index.html     14-deck gallery
-│   ├── full-decks/<name>/        14 scoped multi-slide decks
+│   ├── full-decks-index.html     15-deck gallery
+│   ├── full-decks/<name>/        15 scoped multi-slide decks
 │   └── single-page/*.html        31 layout files with demo data
 ├── scripts/
 │   ├── new-deck.sh               scaffold
@@ -231,4 +246,4 @@ ostar-all-in-html-ppt/
 
 ## License
 
-MIT © 2026 lewis &lt;sudolewis@gmail.com&gt;.
+MIT © 2026 ostar999 &lt;ota1754@qq.com&gt;
