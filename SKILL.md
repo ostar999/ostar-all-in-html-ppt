@@ -78,7 +78,7 @@ tasteful default and confirm.
    - Academic / report → `academic-paper`, `editorial-serif`, `minimal-white`
    - Edgy / cyber / launch → `cyberpunk-neon`, `vaporwave`, `y2k-chrome`,
      `neo-brutalism`
-3. **Starting point.** One of the 14 full-deck templates, or scratch? Point
+3. **Starting point.** One of the 15 full-deck templates, or scratch? Point
    to the closest `templates/full-decks/<name>/` and ask if it fits. If the
    user's content suggests something obvious (e.g. "我要做产品发布会" →
    `product-launch`), propose it confidently instead of asking blindly.
@@ -130,7 +130,7 @@ Only after those are clear, scaffold the deck and start writing.
   from CSS variables defined in `assets/base.css` and overridden by a theme.
   Good: `color: var(--text-1)`. Bad: `color: #111`.
 - **Don't invent new layout files.** Prefer composing existing ones. Only add
-  a new `templates/single-page/*.html` if none of the 30 fit.
+  a new `templates/single-page/*.html` if none of the 31 fit.
 - **Respect chrome slots.** `.deck-header`, `.slide-number` and the progress
   bar are provided by `assets/base.css` + `runtime.js`.
 - **Do NOT add `.deck-footer` by default.** `.deck-footer` uses `position:absolute`
@@ -173,11 +173,13 @@ Chinese + English deck, and how to export.
 ```
 ostar-all-in-html-ppt/
 ├── SKILL.md                 (this file)
+├── README.md                (中文 README)
+├── README.EN.md             (English README)
 ├── references/              (detailed catalogs, load as needed)
 ├── assets/
 │   ├── base.css             (tokens + primitives — do not edit per deck)
 │   ├── fonts.css            (webfont imports)
-│   ├── runtime.js           (keyboard + presenter + overview + theme cycle)
+│   ├── runtime.js           (keyboard + presenter + export + overview + theme cycle)
 │   ├── themes/*.css         (36 token overrides, one per theme)
 │   └── animations/
 │       ├── animations.css   (27 named CSS entry animations)
@@ -188,13 +190,15 @@ ostar-all-in-html-ppt/
 │   ├── theme-showcase.html        (36 slides, iframe-isolated per theme)
 │   ├── layout-showcase.html       (iframe tour of all 31 layouts)
 │   ├── animation-showcase.html    (20 FX + 27 CSS animation slides)
-│   ├── full-decks-index.html      (gallery of all 14 full-deck templates)
-│   ├── full-decks/<name>/         (14 scoped multi-slide deck templates)
+│   ├── full-decks-index.html      (gallery of all 15 full-deck templates)
+│   ├── full-decks/<name>/         (15 scoped multi-slide deck templates)
 │   └── single-page/*.html         (31 layout files with demo data)
 ├── scripts/
 │   ├── new-deck.sh                (scaffold a deck from deck.html)
 │   └── render.sh                  (headless Chrome → PNG)
-└── examples/demo-deck/            (complete working deck)
+├── examples/
+│   ├── demo-deck/                  (complete working deck)
+│   └── export-reference/           (P-key export reference template)
 ```
 
 ## Rendering to PNG
@@ -227,4 +231,4 @@ Esc                                     close all overlays
 
 ## License & author
 
-MIT. Copyright (c) 2026 lewis &lt;sudolewis@gmail.com&gt;.
+MIT. Copyright (c) 2026 ostar999 &lt;ota1754@qq.com&gt;.
