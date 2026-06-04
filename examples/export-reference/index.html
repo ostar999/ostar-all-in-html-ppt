@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claude Code 接入 DeepSeek V4 完整教程 · Tech Sharing</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/animations/animations.css">
+<style>
+/* ===== tech-sharing dark theme ===== */
+:root{
+  --bg:#0d1117;--bg-soft:#161b22;--surface:#161b22;--surface-2:#1c2230;
+  --border:rgba(139,148,158,.22);--border-strong:rgba(139,148,158,.4);
+  --text-1:#e6edf3;--text-2:#8b949e;--text-3:#6e7681;
+  --accent:#7ee787;--accent-2:#79c0ff;--accent-3:#ff7b72;
+  --grad:linear-gradient(120deg,#7ee787 0%,#79c0ff 60%,#d2a8ff 100%);
+  --radius:14px;--radius-lg:20px;
+  --shadow:0 20px 60px rgba(0,0,0,.5);
+  font-family:'Inter','Noto Sans SC',sans-serif;
+}
+body{background:#0d1117;color:var(--text-1)}
+.slide{padding:72px 96px;background:#0d1117;color:var(--text-1)}
+.slide::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(60% 50% at 90% 10%,rgba(121,192,255,.12),transparent 60%),
+  radial-gradient(50% 50% at 10% 90%,rgba(126,231,135,.08),transparent 60%);
+  pointer-events:none;z-index:0}
+.slide>*{position:relative;z-index:1}
+.h1{font-size:78px;line-height:1.03;font-weight:800;letter-spacing:-.03em;color:#fff}
+.h2{font-size:54px;font-weight:700;letter-spacing:-.025em;color:#fff}
+h3,h4{color:#fff}
+.kicker{color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;text-transform:none;letter-spacing:.02em}
+.kicker::before{content:"> "}
+.mono{font-family:'JetBrains Mono','IBM Plex Mono',monospace}
+.terminal{background:#010409;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);font-family:'JetBrains Mono',monospace;font-size:15px;line-height:1.65}
+.terminal .bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#161b22;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-3)}
+.terminal .dot{width:12px;height:12px;border-radius:50%;background:#ff5f56}
+.terminal .dot:nth-child(2){background:#ffbd2e}
+.terminal .dot:nth-child(3){background:#27c93f}
+.terminal pre{margin:0;padding:24px 28px;color:#e6edf3;overflow:auto;max-height:440px}
+.terminal .prompt{color:var(--accent)}
+.terminal .cmd{color:#e6edf3}
+.terminal .out{color:var(--text-2)}
+.kw{color:#ff7b72}
+.fn{color:#d2a8ff}
+.str{color:#a5d6ff}
+.cmt{color:#8b949e;font-style:italic}
+.num{color:#79c0ff}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:none}
+.card-accent{border-top:3px solid var(--accent)}
+.card-blue{border-top:3px solid var(--accent-2)}
+.card-red{border-top:3px solid var(--accent-3)}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2)}
+.tag-accent{background:rgba(126,231,135,.12);color:var(--accent);border-color:rgba(126,231,135,.35)}
+.tag-blue{background:rgba(121,192,255,.12);color:var(--accent-2);border-color:rgba(121,192,255,.35)}
+.agenda-row{display:flex;align-items:baseline;gap:24px;padding:18px 0;border-bottom:1px dashed var(--border);font-family:'JetBrains Mono',monospace}
+.agenda-row .num{color:var(--accent);flex:none;width:48px}
+.agenda-row .t{color:#fff;font-size:24px;flex:1;font-family:'Inter','Noto Sans SC',sans-serif;font-weight:600}
+.agenda-row .d{color:var(--text-3);font-size:13px}
+.speaker{display:flex;align-items:center;gap:14px;margin-top:28px}
+.speaker .av{width:56px;height:56px;border-radius:50%;background:var(--grad)}
+.speaker b{display:block;color:#fff;font-size:18px}
+.speaker span{color:var(--text-3);font-size:13px;font-family:'JetBrains Mono',monospace}
+.lede{color:var(--text-2);font-size:20px;line-height:1.6}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:15px}
+.tbl th{text-align:left;padding:12px 16px;color:var(--accent-2);font-weight:600;border-bottom:2px solid var(--border-strong);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+.tbl td{padding:14px 16px;border-bottom:1px solid var(--border);color:var(--text-1)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .arrow{color:var(--accent);padding:0 8px}
+
+/* comparison grid */
+.vs-grid{display:grid;grid-template-columns:1fr 60px 1fr;gap:24px;align-items:start;margin-top:32px}
+.vs-grid .vs-divider{display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--accent);font-weight:800}
+
+/* step number */
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:12px;background:var(--grad);color:#0d1117;font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-bottom:16px}
+
+/* highlight box */
+.highlight-box{background:rgba(126,231,135,.06);border:1px solid rgba(126,231,135,.2);border-radius:var(--radius);padding:20px 24px;margin-top:20px}
+.highlight-box code{color:var(--accent);font-family:'JetBrains Mono',monospace}
+
+/* FAQ */
+.faq-item{margin-bottom:20px}
+.faq-item .q{color:var(--accent-2);font-size:18px;font-weight:600;margin-bottom:6px}
+.faq-item .a{color:var(--text-2);font-size:16px;line-height:1.7}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:600}
+.badge-pro{background:rgba(210,168,255,.15);color:#d2a8ff;border:1px solid rgba(210,168,255,.3)}
+.badge-flash{background:rgba(121,192,255,.15);color:var(--accent-2);border:1px solid rgba(121,192,255,.3)}
+
+/* url link style */
+.url{color:var(--accent-2);font-family:'JetBrains Mono',monospace;font-size:14px;text-decoration:underline;text-underline-offset:4px}
+
+/* center slide */
+.slide.center{display:flex;align-items:center;justify-content:center;text-align:center}
+
+/* notes — hidden from audience, visible in S overlay */
+.notes{display:none}
+
+/* ===== Export Dialog (P key) ===== */
+.export-overlay{position:fixed;inset:0;background:rgba(10,12,18,.94);backdrop-filter:blur(12px);z-index:60;display:none;align-items:center;justify-content:center;padding:24px}
+.export-overlay.open{display:flex}
+.export-panel{width:100%;max-width:1280px;max-height:90vh;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+.export-header{display:flex;align-items:center;gap:16px;padding:18px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
+.export-header h2{margin:0;font-size:18px;font-weight:700;color:var(--text-1);flex:1}
+.export-count{font-size:13px;color:var(--text-2);font-family:'JetBrains Mono',monospace}
+.export-close{background:none;border:none;color:var(--text-3);font-size:24px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1;transition:background .15s,color .15s}
+.export-close:hover{background:var(--surface-2);color:var(--text-1)}
+.export-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 24px;overflow-y:auto;flex:1}
+.export-thumb{position:relative;background:var(--surface);border:2px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s;aspect-ratio:16/9}
+.export-thumb:hover{border-color:var(--accent-2);transform:scale(1.02)}
+.export-thumb.selected{border-color:var(--accent)}
+.export-thumb-inner{position:absolute;inset:0;overflow:hidden}
+.export-thumb .mini-slide{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;pointer-events:none;background:var(--bg)}
+.export-thumb .mini-slide .slide{position:absolute;inset:0;transform:none;opacity:1;padding:72px 96px}
+.export-check{position:absolute;top:8px;right:8px;z-index:15;width:26px;height:26px;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.35);border-radius:6px;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;pointer-events:auto}
+.export-thumb:hover .export-check{border-color:rgba(255,255,255,.7)}
+.export-thumb.selected .export-check{background:var(--accent);border-color:var(--accent)}
+.export-check svg{display:none;width:14px;height:14px}
+.export-thumb.selected .export-check svg{display:block}
+.export-thumb-label{position:absolute;bottom:0;left:0;right:0;padding:6px 10px;background:linear-gradient(transparent,rgba(0,0,0,.75));display:flex;align-items:center;gap:8px;z-index:10;pointer-events:none}
+.export-thumb-num{font-size:12px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.export-thumb-title{font-size:12px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.export-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-top:1px solid var(--border);flex-shrink:0;gap:12px;flex-wrap:wrap}
+.export-bar-left,.export-bar-right{display:flex;align-items:center;gap:8px}
+.export-btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-1);transition:background .15s,border-color .15s,opacity .15s}
+.export-btn:hover{background:var(--surface-2);border-color:var(--border-strong)}
+.export-btn:disabled{opacity:.4;cursor:not-allowed}
+.export-btn-primary{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700}
+.export-btn-primary:hover{filter:brightness(1.15)}
+.export-btn-primary:disabled{filter:none}
+.export-progress{display:none;align-items:center;gap:14px;padding:12px 24px;border-top:1px solid var(--border);flex-shrink:0}
+.export-progress.active{display:flex}
+.export-progress-bar{flex:1;height:4px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.export-progress-bar span{display:block;height:100%;width:0%;background:var(--accent);transition:width .3s ease}
+.export-progress-text{font-size:12px;color:var(--text-2);white-space:nowrap;font-family:'JetBrains Mono',monospace;min-width:140px}
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- ===== 1. Cover ===== -->
+  <section class="slide" data-title="Cover">
+    <p class="kicker">claude-code · deepseek · 2026</p>
+    <h1 class="h1 anim-fade-up" data-anim="fade-up">Claude Code 接入<br><span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">DeepSeek V4</span> 完整教程</h1>
+    <p class="lede mt-m">用 CC Switch 图形化配置，让 Claude Code 跑在 DeepSeek 模型上。</p>
+    <div class="speaker">
+      <div class="av"></div>
+      <div><b>技术分享</b><span>CC Switch · DeepSeek V4 Pro/Flash · ~10 min</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 2. Agenda ===== -->
+  <section class="slide" data-title="Agenda">
+    <p class="kicker">agenda.md</p>
+    <h2 class="h2">今天走这 7 步</h2>
+    <div class="stack mt-l">
+      <div class="agenda-row"><span class="num">01</span><span class="t">安装 Claude Code CLI</span><span class="d">Node.js + npm</span></div>
+      <div class="agenda-row"><span class="num">02</span><span class="t">准备 DeepSeek API Key</span><span class="d">platform.deepseek.com</span></div>
+      <div class="agenda-row"><span class="num">03</span><span class="t">安装 CC Switch 配置工具</span><span class="d">GUI · 跨平台</span></div>
+      <div class="agenda-row"><span class="num">04</span><span class="t">配置 DeepSeek Provider</span><span class="d">Anthropic 兼容接口</span></div>
+      <div class="agenda-row"><span class="num">05</span><span class="t">模型槽位映射</span><span class="d">Haiku / Sonnet / Opus</span></div>
+      <div class="agenda-row"><span class="num">06</span><span class="t">高级配置：上下文 + 子代理</span><span class="d">[1m] · SubAgent</span></div>
+      <div class="agenda-row"><span class="num">07</span><span class="t">启动验证 + 推荐方案</span><span class="d">claude · /status</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 3. 安装 Claude Code ===== -->
+  <section class="slide" data-title="Step 1">
+    <p class="kicker">step · 1 / 7</p>
+    <h2 class="h2">一、安装 Claude Code</h2>
+    <div class="grid g2 mt-l" style="align-items:start">
+      <div>
+        <p class="lede">Claude Code 是 Anthropic 官方出品的 CLI 编程助手。先装 Node.js 20/22 LTS，再一行命令搞定。</p>
+        <div class="highlight-box mt-l">
+          <p style="color:var(--text-2);font-size:14px;margin:0 0 8px">📋 前置条件</p>
+          <code>node -v</code> &nbsp;→ Node.js ≥ 20<br>
+          <code>npm -v</code> &nbsp;→ npm ≥ 10
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>terminal</span></div>
+<pre><span class="prompt">$ </span><span class="cmd">node -v</span>
+<span class="out">v22.12.0</span>
+
+<span class="prompt">$ </span><span class="cmd">npm install -g @anthropic-ai/claude-code</span>
+<span class="out">✔ installed claude-code@latest</span>
+
+<span class="prompt">$ </span><span class="cmd">claude --version</span>
+<span class="out">Claude Code v2.x.x</span></pre>
+      </div>
+    </div>
+    <p class="mt-m" style="font-size:14px;color:var(--text-3)">📖 官方文档：<span class="url">docs.anthropic.com/en/docs/claude-code</span></p>
+  </section>
+
+  <!-- ===== 4. 准备 DeepSeek API ===== -->
+  <section class="slide" data-title="Step 2">
+    <p class="kicker">step · 2 / 7</p>
+    <h2 class="h2">二、准备 DeepSeek API Key</h2>
+    <div class="grid g2 mt-l" style="align-items:start">
+      <div>
+        <p class="lede">登录 DeepSeek 开放平台，创建 API Key。这是后续 CC Switch 配置的核心凭证。</p>
+        <div class="stack mt-l">
+          <div class="card card-blue">
+            <h4 style="color:var(--accent-2)">🔑 操作步骤</h4>
+            <ol style="color:var(--text-2);font-size:15px;line-height:2;padding-left:20px;margin:8px 0 0">
+              <li>打开 <span class="url">platform.deepseek.com/api_keys</span></li>
+              <li>登录你的 DeepSeek 账号</li>
+              <li>点击「创建 API Key」</li>
+              <li>复制并安全保存 <code style="color:var(--accent)">sk-xxxxxxxxxxxxxxxx</code></li>
+            </ol>
+          </div>
+          <div class="tag tag-blue mt-s">⚠️ Key 只显示一次，请妥善保存</div>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>deepseek api</span></div>
+<pre><span class="cmt"># DeepSeek Anthropic 兼容接口</span>
+<span class="kw">Base URL</span>  <span class="str">https://api.deepseek.com/anthropic</span>
+
+<span class="cmt"># 可用模型</span>
+<span class="fn">deepseek-v4-pro</span>    <span class="cmt">← 旗舰推理</span>
+<span class="fn">deepseek-v4-flash</span>  <span class="cmt">← 快速经济</span>
+
+<span class="cmt"># [1m] = 100 万 Token 上下文</span>
+<span class="fn">deepseek-v4-pro[1m]</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 5. 安装 CC Switch ===== -->
+  <section class="slide" data-title="Step 3">
+    <p class="kicker">step · 3 / 7</p>
+    <h2 class="h2">三、安装 CC Switch</h2>
+    <div class="grid g2 mt-l" style="align-items:start">
+      <div>
+        <p class="lede">CC Switch 是一个<strong style="color:#fff">图形化配置工具</strong>，统一管理 Claude Code、Codex、OpenCode 等 CLI 工具的模型配置，无需手动编辑 JSON。</p>
+        <div class="stack mt-l">
+          <div class="tag tag-accent">🎯 一键切换模型</div>
+          <div class="tag tag-accent">🔧 可视化 Provider 管理</div>
+          <div class="tag tag-accent">🔄 支持本地代理模式</div>
+          <div class="tag tag-accent">🖥️ macOS / Windows / Linux</div>
+        </div>
+      </div>
+      <div class="card card-accent" style="text-align:center">
+        <div style="font-size:64px;margin-bottom:12px">⚙️</div>
+        <h3 style="color:#fff;font-size:22px">CC Switch</h3>
+        <p style="color:var(--text-2);font-size:14px;margin:8px 0">github.com/farion1231/cc-switch</p>
+        <div class="stack mt-m" style="gap:8px">
+          <div class="tag" style="justify-content:center">下载对应系统版本</div>
+          <div class="tag" style="justify-content:center">安装 → 打开 → 配置</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 6. 配置 Provider ===== -->
+  <section class="slide" data-title="Step 4">
+    <p class="kicker">step · 4 / 7</p>
+    <h2 class="h2">四、配置 DeepSeek Provider</h2>
+    <div class="grid g2 mt-l" style="align-items:start">
+      <div>
+        <p class="lede">在 CC Switch 中新建 Provider，填入 DeepSeek 的 <strong style="color:var(--accent)">Anthropic 兼容接口</strong>地址和 API Key。</p>
+        <div class="card card-accent mt-l">
+          <h4 style="color:var(--accent)">⚡ 关键信息</h4>
+          <p style="color:var(--text-2);font-size:14px;line-height:1.8;margin:8px 0 0">
+            DeepSeek 提供了与 Anthropic API 兼容的接口，Claude Code 可以直接使用，无需任何中间层。
+          </p>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>cc-switch · provider config</span></div>
+<pre><span class="cmt"># 新建 Provider 选择</span>
+<span class="kw">Provider Type:</span>  <span class="fn">DeepSeek</span>
+<span class="cmt"># 或 Custom Provider</span>
+
+<span class="cmt"># 填写配置</span>
+<span class="kw">Base URL:</span>
+  <span class="str">https://api.deepseek.com/anthropic</span>
+
+<span class="kw">API Key:</span>
+  <span class="str">sk-xxxxxxxxxxxxxxxx</span>
+
+<span class="cmt"># ✅ Anthropic 兼容，Claude Code 直接可用</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 7. 模型映射 ===== -->
+  <section class="slide" data-title="Step 5">
+    <p class="kicker">step · 5 / 7</p>
+    <h2 class="h2">五、配置模型槽位映射</h2>
+    <p class="lede">Claude Code 有三个模型槽位，分别映射到 DeepSeek 模型：</p>
+    <div class="mt-l" style="max-width:720px">
+      <table class="tbl">
+        <thead>
+          <tr><th>Claude Code 槽位</th><th style="text-align:center"></th><th>映射模型</th><th>定位</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-flash">Haiku</span></td>
+            <td style="text-align:center"><span class="arrow">→</span></td>
+            <td><code style="color:var(--accent-2)">deepseek-v4-flash</code></td>
+            <td><span class="tag">快速·便宜</span></td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-pro" style="background:rgba(126,231,135,.15);color:var(--accent);border-color:rgba(126,231,135,.3)">Sonnet</span></td>
+            <td style="text-align:center"><span class="arrow">→</span></td>
+            <td><code style="color:var(--accent)">deepseek-v4-pro</code></td>
+            <td><span class="tag tag-accent">主力推理</span></td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-pro">Opus</span></td>
+            <td style="text-align:center"><span class="arrow">→</span></td>
+            <td><code style="color:#d2a8ff">deepseek-v4-pro</code></td>
+            <td><span class="tag" style="color:#d2a8ff;border-color:rgba(210,168,255,.35);background:rgba(210,168,255,.08)">复杂任务</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="highlight-box">
+        <p style="margin:0;font-size:14px;color:var(--text-2)">💡 <strong style="color:#fff">核心思路：</strong>Sonnet 和 Opus 都走 V4 Pro（强推理），Haiku 走 V4 Flash（快 + 省）。这是目前社区最主流的配置。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 8. 高级配置 ===== -->
+  <section class="slide" data-title="Step 6">
+    <p class="kicker">step · 6 / 7</p>
+    <h2 class="h2">六、推荐高级配置</h2>
+    <div class="grid g2 mt-l" style="align-items:start">
+      <div>
+        <div class="card card-accent">
+          <h3 style="color:#fff;font-size:22px">🎯 主模型</h3>
+          <div class="terminal" style="margin-top:16px;font-size:18px;text-align:center">
+            <pre style="padding:20px"><span class="fn" style="font-size:20px">deepseek-v4-pro[1m]</span></pre>
+          </div>
+          <p style="color:var(--text-2);font-size:14px;margin-top:12px"><code style="color:var(--accent)">[1m]</code> = 100 万 Token 上下文窗口。不加此标记时使用默认较短上下文。</p>
+        </div>
+      </div>
+      <div>
+        <div class="card card-blue">
+          <h3 style="color:#fff;font-size:22px">🤖 子代理模型</h3>
+          <p style="color:var(--text-2);font-size:14px;margin:8px 0">让子 Agent 用 Flash，显著降低成本：</p>
+          <div class="terminal" style="margin-top:12px">
+            <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>.zshrc / settings.json</span></div>
+<pre><span class="cmt"># 环境变量方式</span>
+<span class="kw">export</span> <span class="fn">CLAUDE_CODE_SUBAGENT_MODEL</span>=<span class="str">deepseek-v4-flash</span>
+
+<span class="cmt"># 或 settings.json</span>
+{
+  <span class="str">"CLAUDE_CODE_SUBAGENT_MODEL"</span>:
+    <span class="str">"deepseek-v4-flash"</span>
+}</pre>
+          </div>
+          <p style="color:var(--text-2);font-size:13px;margin-top:12px">💡 Pro 做规划推理，Flash 做子任务执行 = 性价比最优。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 9. 启动验证 ===== -->
+  <section class="slide" data-title="Step 7">
+    <p class="kicker">step · 7 / 7</p>
+    <h2 class="h2">七、启动 Claude Code & 验证</h2>
+    <div class="grid g2 mt-l" style="align-items:start">
+      <div>
+        <p class="lede">进入项目目录，启动 Claude Code，用 <code style="color:var(--accent)">/status</code> 确认当前模型。</p>
+        <div class="highlight-box mt-l">
+          <p style="color:var(--text-2);font-size:14px;margin:0 0 8px">✅ 成功标志：看到</p>
+          <code>Provider:</code> &nbsp;<span style="color:var(--str)">https://api.deepseek.com/anthropic</span><br>
+          <code>Model:</code> &nbsp;<span style="color:var(--fn)">deepseek-v4-pro</span>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>terminal · your-project</span></div>
+<pre><span class="prompt">$ </span><span class="cmd">cd your-project</span>
+
+<span class="prompt">$ </span><span class="cmd">claude</span>
+<span class="out">✔ Claude Code v2.x.x</span>
+<span class="out">✔ Connected to DeepSeek V4 Pro</span>
+
+<span class="prompt">> </span><span class="cmd">/status</span>
+
+<span class="out">Provider:</span>
+<span class="str">https://api.deepseek.com/anthropic</span>
+
+<span class="out">Model:</span>
+<span class="fn">deepseek-v4-pro</span>
+
+<span class="cmt"># 🎉 配置成功！</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 10. 推荐方案 + FAQ ===== -->
+  <section class="slide" data-title="Recommendation">
+    <p class="kicker">best-practice.toml</p>
+    <h2 class="h2">推荐方案 &amp; 常见问题</h2>
+    <div class="grid g2 mt-l" style="align-items:start;gap:32px">
+      <!-- 左：推荐方案 -->
+      <div class="card card-accent">
+        <h3 style="color:var(--accent);font-size:20px">🏆 性价比最优方案</h3>
+        <table class="tbl" style="margin-top:12px">
+          <tbody>
+            <tr><td style="color:var(--text-2)">主模型</td><td><code style="color:var(--accent)">deepseek-v4-pro[1m]</code></td></tr>
+            <tr><td style="color:var(--text-2)">Haiku</td><td><code style="color:var(--accent-2)">deepseek-v4-flash</code></td></tr>
+            <tr><td style="color:var(--text-2)">Sonnet</td><td><code style="color:var(--accent)">deepseek-v4-pro</code></td></tr>
+            <tr><td style="color:var(--text-2)">Opus</td><td><code style="color:var(--accent)">deepseek-v4-pro</code></td></tr>
+            <tr><td style="color:var(--text-2)">SubAgent</td><td><code style="color:var(--accent-2)">deepseek-v4-flash</code></td></tr>
+          </tbody>
+        </table>
+        <div class="stack mt-m" style="gap:6px">
+          <div class="tag tag-accent">大型代码库分析</div>
+          <div class="tag tag-accent">多文件重构</div>
+          <div class="tag tag-accent">MCP 工具调用</div>
+          <div class="tag tag-accent">长上下文项目</div>
+        </div>
+      </div>
+      <!-- 右：FAQ -->
+      <div>
+        <div class="faq-item">
+          <div class="q">Q: 模型名后面的 <code style="color:var(--accent)">[1m]</code> 是什么？</div>
+          <div class="a">开启 100 万 Token 上下文窗口。不加则使用默认较短上下文。适合分析大型代码库或多文件重构。</div>
+        </div>
+        <div class="faq-item">
+          <div class="q">Q: CC Switch 本地代理模式能用 <code style="color:var(--accent)">[1m]</code> 吗？</div>
+          <div class="a">部分教程指出本地代理模式下不要直接填写 <code style="color:var(--accent)">[1m]</code>，可能导致识别异常。请按 CC Switch 当前版本的说明配置。</div>
+        </div>
+        <div class="faq-item">
+          <div class="q">Q: V4 Pro vs V4 Flash 怎么选？</div>
+          <div class="a">
+            <span class="badge badge-flash">Flash</span> 快 + 便宜，日常编码用<br>
+            <span class="badge badge-pro">Pro</span> 强推理，复杂重构和架构设计用<br>
+            <span style="color:var(--text-2)">社区推荐：</span><code style="color:var(--accent)">主Agent=Pro + 子Agent=Flash</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 11. Thanks / Q&A ===== -->
+  <section class="slide center" data-title="Thanks">
+    <div>
+      <div class="mono" style="font-size:120px;color:var(--accent);font-weight:800;letter-spacing:-.04em">?</div>
+      <h2 class="h2">Questions?</h2>
+      <p class="lede" style="margin:14px auto">Claude Code + DeepSeek V4 = 强推理 + 低成本</p>
+      <div class="row mt-l" style="justify-content:center;gap:12px;flex-wrap:wrap">
+        <span class="tag">📖 docs.anthropic.com/en/docs/claude-code</span>
+        <span class="tag">🔗 github.com/farion1231/cc-switch</span>
+        <span class="tag">🔑 platform.deepseek.com/api_keys</span>
+      </div>
+      <p style="color:var(--text-3);font-size:13px;margin-top:28px">Pro 做规划推理 · Flash 做高频执行 · 性价比最优 🚀</p>
+    </div>
+  </section>
+
+</div>
+<script src="assets/runtime.js"></script>
+<script src="assets/animations/fx-runtime.js"></script>
+<script>
+/* ===== PDF / SVG Export (P key) ===== */
+(function(){
+'use strict';
+
+const SLIDE_W = 1920, SLIDE_H = 1080, CANVAS_SCALE = 2;
+let dialog = null, isExporting = false, _jszip = null;
+
+// --- CDN loader ---
+function loadScript(src){return new Promise((ok,rej)=>{
+  const s=document.createElement('script');s.src=src;
+  s.onload=ok;s.onerror=()=>rej(new Error('CDN load fail: '+src));
+  document.head.appendChild(s);
+})}
+
+async function getJSZip(){
+  if(_jszip)return _jszip;
+  if(window.JSZip){_jszip=window.JSZip;return _jszip}
+  await loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+  _jszip=window.JSZip;return _jszip;
+}
+
+// --- Dialog ---
+function buildDialog(){
+  if(dialog)return;
+  dialog=document.createElement('div');dialog.className='export-overlay';
+  dialog.innerHTML='<div class="export-panel">'+
+    '<div class="export-header"><h2>📄 导出幻灯片</h2><span class="export-count" id="exp-count">已选 11/11</span><button class="export-close">&times;</button></div>'+
+    '<div class="export-grid" id="exp-grid"></div>'+
+    '<div class="export-progress" id="exp-progress"><div class="export-progress-bar"><span id="exp-bar-fill"></span></div><span class="export-progress-text" id="exp-progress-text">准备中...</span></div>'+
+    '<div class="export-bar"><div class="export-bar-left"><button class="export-btn" id="exp-sel-all">全选</button><button class="export-btn" id="exp-sel-none">取消全选</button></div><div class="export-bar-right"><button class="export-btn" id="exp-cancel">取消</button><button class="export-btn" id="exp-svg-btn">📦 导出 SVG (.zip)</button><button class="export-btn export-btn-primary" id="exp-pdf-btn">📥 导出 PDF</button></div></div>'+
+  '</div>';
+  document.body.appendChild(dialog);
+
+  // Events
+  dialog.querySelector('.export-close').onclick=()=>toggleDialog(false);
+  dialog.querySelector('#exp-cancel').onclick=()=>toggleDialog(false);
+  dialog.querySelector('#exp-sel-all').onclick=()=>setAllChecks(true);
+  dialog.querySelector('#exp-sel-none').onclick=()=>setAllChecks(false);
+  dialog.querySelector('#exp-pdf-btn').onclick=()=>doExport('pdf');
+  dialog.querySelector('#exp-svg-btn').onclick=()=>doExport('svg');
+  dialog.addEventListener('click',function(e){if(e.target===dialog)toggleDialog(false)});
+}
+
+function renderThumbs(){
+  const grid=dialog.querySelector('#exp-grid');
+  grid.innerHTML='';
+  const slides=document.querySelectorAll('.slide');
+  slides.forEach(function(s,i){
+    const title=s.getAttribute('data-title')||(s.querySelector('h1,h2,h3')||{}).textContent||('Slide '+(i+1));
+    const t=document.createElement('div');
+    t.className='export-thumb selected';
+    t.setAttribute('data-idx',i);
+    // Mini slide clone
+    const inner=document.createElement('div');inner.className='export-thumb-inner';
+    const mini=document.createElement('div');mini.className='mini-slide';
+    const clone=s.cloneNode(true);
+    clone.classList.add('is-active');clone.style.position='absolute';clone.style.inset='0';
+    clone.style.transform='none';clone.style.opacity='1';clone.style.padding='72px 96px';
+    mini.appendChild(clone);inner.appendChild(mini);
+    // Check
+    const check=document.createElement('div');check.className='export-check';
+    check.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    // Label
+    const label=document.createElement('div');label.className='export-thumb-label';
+    label.innerHTML='<span class="export-thumb-num">'+(i+1)+'</span><span class="export-thumb-title">'+escapeHTML(title).slice(0,60)+'</span>';
+    t.appendChild(inner);t.appendChild(check);t.appendChild(label);
+    // Click toggle
+    t.addEventListener('click',function(e){
+      t.classList.toggle('selected');updateCount();
+    });
+    grid.appendChild(t);
+  });
+  // Scale thumbs
+  requestAnimationFrame(function(){
+    const thumbs=grid.querySelectorAll('.export-thumb');
+    if(!thumbs.length)return;
+    const scale=thumbs[0].clientWidth/1920;
+    grid.querySelectorAll('.mini-slide').forEach(function(m){m.style.transform='scale('+scale+')'});
+  });
+  updateCount();
+}
+
+function updateCount(){
+  const n=dialog.querySelectorAll('.export-thumb.selected').length;
+  const total=document.querySelectorAll('.slide').length;
+  dialog.querySelector('#exp-count').textContent='已选 '+n+'/'+total;
+}
+
+function setAllChecks(v){
+  dialog.querySelectorAll('.export-thumb').forEach(function(t){
+    t.classList.toggle('selected',v);
+  });
+  updateCount();
+}
+
+function getSelectedIndices(){
+  var r=[];
+  dialog.querySelectorAll('.export-thumb.selected').forEach(function(t){
+    r.push(parseInt(t.getAttribute('data-idx')));
+  });
+  return r.sort(function(a,b){return a-b});
+}
+
+function toggleDialog(force){
+  if(!dialog)buildDialog();
+  // Don't toggle during active export
+  if(force===undefined&&isExporting)return;
+  var open=force!==undefined?force:!dialog.classList.contains('open');
+  dialog.classList.toggle('open',open);
+  if(open){
+    renderThumbs();
+    // Close overview if open
+    var ov=document.querySelector('.overview');
+    if(ov&&ov.classList.contains('open'))ov.classList.remove('open');
+  }
+}
+
+// --- CSS collection ---
+async function getAllCSS(){
+  var parts=[];
+  // Inline <style>
+  document.querySelectorAll('style').forEach(function(s){parts.push(s.textContent)});
+  // External stylesheets
+  var links=document.querySelectorAll('link[rel="stylesheet"]');
+  for(var i=0;i<links.length;i++){
+    try{
+      var res=await fetch(links[i].href);
+      if(res.ok)parts.push(await res.text());
+    }catch(e){/* skip on file:// */}
+
+
+  }
+  return parts.join('\n');
+}
+
+// --- Slide → SVG ---
+function slideToSVG(slideEl,idx){
+  var clone=slideEl.cloneNode(true);
+  // Strip anim attrs
+  clone.querySelectorAll('[data-anim],[data-fx]').forEach(function(el){
+    el.removeAttribute('data-anim');el.removeAttribute('data-fx');
+  });
+  clone.classList.add('is-active');
+
+  // Collect inline CSS from document <style> elements
+  var css=getAllCSS_sync();
+  // Build :root block with current CSS variable values
+  var rootBlock=buildRootBlock();
+  // Combine and escape & for XML
+  var fullCSS=escapeXML(rootBlock+'\n'+css);
+
+  // Clone only keeps explicit inline styles (not computed)
+  // Remove dynamic/animation classes that don't exist in CSS
+  clone.querySelectorAll('.anim-fade-up,.anim-fade-left,.anim-fade-right').forEach(function(el){
+    el.classList.remove('anim-fade-up','anim-fade-left','anim-fade-right');
+  });
+
+  // Use XMLSerializer for XHTML-compliant output (self-closes <br/>, <img/> etc.)
+  // outerHTML produces HTML5 where void elements lack /, which breaks XML parsing
+  var html=new XMLSerializer().serializeToString(clone);
+  html=escapeXML(html);
+
+  return '<?xml version="1.0" encoding="UTF-8"?>\n'+
+    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+SLIDE_W+'" height="'+SLIDE_H+'" viewBox="0 0 '+SLIDE_W+' '+SLIDE_H+'">\n'+
+    '  <foreignObject width="'+SLIDE_W+'" height="'+SLIDE_H+'" x="0" y="0">\n'+
+    '    <div xmlns="http://www.w3.org/1999/xhtml" style="width:'+SLIDE_W+'px;height:'+SLIDE_H+'px;overflow:hidden;background:#0d1117">\n'+
+    '      <style><![CDATA['+fullCSS+']]></style>\n'+
+    '      '+html+'\n'+
+    '    </div>\n'+
+    '  </foreignObject>\n'+
+    '</svg>';
+}
+
+// Build a :root CSS block with all current CSS variable values
+function buildRootBlock(){
+  var rootCS=window.getComputedStyle(document.documentElement);
+  var vars=[];
+  // Collect ALL --* custom properties from :root
+  for(var i=0;i<rootCS.length;i++){
+    var prop=rootCS.item(i);
+    if(prop.startsWith('--')){
+      vars.push(prop+': '+rootCS.getPropertyValue(prop)+';');
+    }
+  }
+  return ':root {\n'+vars.join('\n')+'\n}';
+}
+
+// Escape & for XML, but keep already-escaped entities intact
+function escapeXML(str){
+  return str.replace(/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;|#x[0-9a-fA-F]+;)/g,'&amp;');
+}
+
+function getAllCSS_sync(){
+  // Collect inline <style> content only
+  var parts=[];
+  document.querySelectorAll('style').forEach(function(s){parts.push(s.textContent)});
+  // Also try to read external stylesheets via fetch (may fail on file://)
+  // The async getAllCSS handles merging; sync version is fallback
+  return parts.join('\n');
+}
+
+// --- Slide → Canvas (via html2canvas) ---
+async function slideToCanvas(slideEl){
+  var html2canvas=await getHtml2canvas();
+  return html2canvas(slideEl,{
+    scale: CANVAS_SCALE,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#0d1117',
+    logging: false
+  });
+}
+
+// --- Export flows ---
+function showProgress(pct,text){
+  var bar=dialog.querySelector('#exp-progress');
+  bar.classList.add('active');
+  dialog.querySelector('#exp-bar-fill').style.width=pct+'%';
+  dialog.querySelector('#exp-progress-text').textContent=text;
+}
+function hideProgress(){
+  dialog.querySelector('#exp-progress').classList.remove('active');
+  dialog.querySelector('#exp-bar-fill').style.width='0%';
+}
+
+function disableBtns(v){
+  dialog.querySelectorAll('.export-btn').forEach(function(b){b.disabled=v});
+}
+
+function escapeHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function getFilename(ext){
+  var h1=document.querySelector('h1');
+  var title=h1?h1.textContent:'presentation';
+  return title.trim().replace(/[^a-zA-Z0-9一-鿿_-]/g,'_').replace(/_+/g,'_').slice(0,60)+'.'+ext;
+}
+
+async function doExport(mode){
+  if(isExporting)return;
+  var indices=getSelectedIndices();
+  if(!indices.length){alert('请至少选择一页幻灯片。');return}
+  isExporting=true;disableBtns(true);
+
+  try{
+    if(mode==='pdf'){
+      showProgress(10,'准备打印...');
+      await exportPDF(indices);
+    }else{
+      showProgress(0,'准备中...');
+      var css='';
+      try{css=await getAllCSS()}catch(e){css=getAllCSS_sync()}
+      await exportSVGs(indices,css);
+    }
+  }catch(e){
+    alert('导出失败: '+e.message);console.error(e);
+  }finally{
+    isExporting=false;disableBtns(false);hideProgress();
+  }
+}
+
+async function exportPDF(indices,css){
+  // Use browser's native Print → "Save as PDF" for pixel-perfect rendering
+  var allSlides=document.querySelectorAll('.slide');
+  var selectedSet=new Set(indices);
+
+  // 1. Inject print CSS — force background colors, proper 16:9 sizing
+  var printCSS=document.createElement('style');
+  printCSS.id='_pdf_print_';
+  printCSS.textContent=
+    '@media print{'+
+      /* Exact 16:9 page — matches slide design dimensions */
+      '@page{size:1920px 1080px;margin:0}'+
+      /* Force background colors/gradients to print */
+      '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
+      'html,body{overflow:visible!important;margin:0!important;padding:0!important;'+
+        'background:#0d1117!important}'+
+      '.deck{position:static!important;overflow:visible!important;background:#0d1117!important}'+
+      /* Each slide = exactly one 1920×1080 page, pixel-perfect to browser rendering */
+      '.slide{display:flex!important;visibility:visible!important;opacity:1!important;'+
+        'position:relative!important;width:1920px!important;height:1080px!important;'+
+        'page-break-after:always!important;break-after:page!important;'+
+        'transform:none!important;margin:0!important;padding:72px 96px!important;'+
+        'box-sizing:border-box!important;background:#0d1117!important;color:#e6edf3!important;'+
+        'overflow:hidden!important;flex-direction:column!important;justify-content:center!important}'+
+      '.slide::before{content:""!important}'+
+      '.slide:last-of-type{page-break-after:avoid!important}'+
+      '.export-overlay,.overview,.notes-overlay,.progress-bar,.deck-footer,.slide-number{display:none!important}'+
+    '}';
+  // Screen rule: temporarily show selected slides so print engine sees them
+  printCSS.textContent+=
+    '._pdf_show_{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;transform:none!important;background:#0d1117!important}'+
+    '._pdf_hide_{display:none!important}';
+
+  document.head.appendChild(printCSS);
+
+  // 2. Mark slides: show selected, hide rest on screen
+  var origClasses=[];
+  allSlides.forEach(function(s,i){
+    origClasses.push(s.className);
+    if(selectedSet.has(i)){
+      s.classList.add('_pdf_show_');
+    }else{
+      s.classList.add('_pdf_hide_');
+    }
+  });
+
+  // 3. Close dialog, then print
+  hideProgress();
+  toggleDialog(false);
+  setTimeout(function(){
+    window.print();
+    // 4. Cleanup after print dialog closes
+    allSlides.forEach(function(s,i){s.className=origClasses[i]});
+    if(printCSS.parentNode)printCSS.parentNode.removeChild(printCSS);
+  },350);
+}
+
+async function exportSVGs(indices,css){
+  showProgress(5,'加载 JSZip...');
+  var JSZip=await getJSZip();
+  var zip=new JSZip();
+  var total=indices.length;
+  var slides=document.querySelectorAll('.slide');
+
+  for(var j=0;j<total;j++){
+    var pct=5+Math.round((j/total)*90);
+    showProgress(pct,'生成第 '+(j+1)+'/'+total+' 个 SVG...');
+    var idx=indices[j];
+    var svg=slideToSVG(slides[idx],idx);
+    // Inject escaped full CSS into the <style> tag inside foreignObject
+    var escapedCSS=escapeXML(css);
+    svg=svg.replace(/(<style><!\[CDATA\[)([\s\S]*?)(\]\]><\/style>)/,function(m,open,c1,close){
+      return open+escapedCSS+'\n/* === inline === */\n'+c1+close;
+    });
+    var title=slides[idx].getAttribute('data-title')||('slide-'+(idx+1));
+    var fname='slide-'+(idx+1)+'-'+title.replace(/[^a-zA-Z0-9一-鿿_-]/g,'_').slice(0,40)+'.svg';
+    zip.file(fname,svg);
+    await new Promise(function(r){setTimeout(r,10)});
+  }
+  showProgress(95,'打包 ZIP...');
+  var blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',
+    compressionOptions:{level:6}});
+  showProgress(98,'下载中...');
+  downloadBlob(blob,getFilename('svg').replace('.svg','.zip'));
+  showProgress(100,'完成！');
+  await new Promise(function(r){setTimeout(r,600)});
+}
+
+function downloadBlob(blob,filename){
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url)},30000);
+}
+
+// --- Keyboard ---
+document.addEventListener('keydown',function(e){
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(e.key==='p'||e.key==='P'){
+    e.preventDefault();e.stopPropagation();
+    toggleDialog();
+  }
+  if(e.key==='Escape'&&dialog&&dialog.classList.contains('open')){
+    toggleDialog(false);
+  }
+});
+
+// Handle window resize for thumb scaling
+window.addEventListener('resize',function(){
+  if(!dialog||!dialog.classList.contains('open'))return;
+  requestAnimationFrame(function(){
+    var thumbs=dialog.querySelectorAll('.export-thumb');
+    if(!thumbs.length)return;
+    var scale=thumbs[0].clientWidth/1920;
+    dialog.querySelectorAll('.mini-slide').forEach(function(m){m.style.transform='scale('+scale+')'});
+  });
+});
+
+})();
+</script>
+</body>
+</html>

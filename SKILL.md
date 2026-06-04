@@ -166,11 +166,12 @@ Chinese + English deck, and how to export.
 - [references/full-decks.md](references/full-decks.md) — all 15 full-deck templates.
 - [references/presenter-mode.md](references/presenter-mode.md) — **演讲者模式 + 逐字稿编写指南（技术分享/演讲必看）**.
 - [references/authoring-guide.md](references/authoring-guide.md) — full workflow.
+- [examples/export-reference/](examples/export-reference/index.html) — **P 键导出功能完整参考模板**，含导出对话 UI、SVG 生成、PDF 打印的完整实现。生成任何 deck 时以此为参考确保导出功能可正常工作。
 
 ## File structure
 
 ```
-html-ppt/
+ostar-all-in-html-ppt/
 ├── SKILL.md                 (this file)
 ├── references/              (detailed catalogs, load as needed)
 ├── assets/
