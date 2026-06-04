@@ -465,7 +465,7 @@ h3,h4{color:#fff}
 'use strict';
 
 const SLIDE_W = 1920, SLIDE_H = 1080, CANVAS_SCALE = 2;
-let dialog = null, isExporting = false, _jszip = null;
+let dialog = null, isExporting = false, _jszip = null, _slideTotal = 0;
 
 // --- CDN loader ---
 function loadScript(src){return new Promise((ok,rej)=>{
@@ -508,7 +508,8 @@ function buildDialog(){
 function renderThumbs(){
   const grid=dialog.querySelector('#exp-grid');
   grid.innerHTML='';
-  const slides=document.querySelectorAll('.slide');
+  const slides=document.querySelectorAll('.deck .slide');
+  _slideTotal = slides.length; // cache BEFORE cloning (clones add .slide too)
   slides.forEach(function(s,i){
     const title=s.getAttribute('data-title')||(s.querySelector('h1,h2,h3')||{}).textContent||('Slide '+(i+1));
     const t=document.createElement('div');
@@ -546,8 +547,7 @@ function renderThumbs(){
 
 function updateCount(){
   const n=dialog.querySelectorAll('.export-thumb.selected').length;
-  const total=document.querySelectorAll('.slide').length;
-  dialog.querySelector('#exp-count').textContent='已选 '+n+'/'+total;
+  dialog.querySelector('#exp-count').textContent='已选 '+n+'/'+_slideTotal;
 }
 
 function setAllChecks(v){

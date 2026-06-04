@@ -301,7 +301,7 @@
     }
 
     /* ========== EXPORT — PDF / SVG (P key) ========== */
-    let exportDialog = null, _exporting = false, _jszip = null;
+    let exportDialog = null, _exporting = false, _jszip = null, _exportSlideTotal = 0;
     const SLIDE_W = 1920, SLIDE_H = 1080;
 
     function loadScript(src){return new Promise(function(ok,rej){
@@ -349,6 +349,7 @@
 
     function renderExportThumbs(){
       var grid=exportDialog.querySelector('#exp-grid');grid.innerHTML='';
+      _exportSlideTotal = slides.length; // cache real count before cloning (clones add .slide too)
       slides.forEach(function(s,i){
         var title=s.getAttribute('data-title')||(s.querySelector('h1,h2,h3')||{}).textContent||('Slide '+(i+1));
         var t=document.createElement('div');t.className='export-thumb selected';t.setAttribute('data-idx',i);
@@ -377,7 +378,7 @@
 
     function updateExportCount(){
       var n=exportDialog.querySelectorAll('.export-thumb.selected').length;
-      exportDialog.querySelector('#exp-count').textContent='已选 '+n+'/'+total;
+      exportDialog.querySelector('#exp-count').textContent='已选 '+n+'/'+_exportSlideTotal;
     }
     function setAllExportChecks(v){
       exportDialog.querySelectorAll('.export-thumb').forEach(function(t){t.classList.toggle('selected',v)});
