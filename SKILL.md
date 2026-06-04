@@ -171,6 +171,19 @@ Only after those are clear, scaffold the deck and start writing.
   selectors that target `.slide` as a descendant (e.g., `.tpl-suno-tutorial .slide::before`
   must also become `.slide.tpl-suno-tutorial::before`).
 
+- **Export thumb selected border MUST use `var(--accent-2)`, NOT `var(--accent)`.**
+  Many themes set `--accent` to white (`#fff`), which is the same color used
+  for the checkbox background (`.export-thumb.selected .export-check`). When
+  both border and checkbox are white, users can't tell which thumbnails are
+  selected. Use `var(--accent-2)` for `.export-thumb.selected { border-color }`
+  — it's always visibly distinct from the white checkbox.
+  ```css
+  /* ✅ Correct */
+  .export-thumb.selected { border-color: var(--accent-2); }
+  /* ❌ Wrong — invisible on white-accent themes like blueprint */
+  .export-thumb.selected { border-color: var(--accent); }
+  ```
+
 - **The `.slide` class must set `background` and `color` explicitly.** In a
   browser, these are inherited from `<html>`/`<body>` via `base.css`. In an SVG
   `foreignObject`, there is no `<html>` or `<body>`, so the slide falls back to
