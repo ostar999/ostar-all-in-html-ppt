@@ -7,7 +7,7 @@
 > 无需构建。
 
 🚀 基于 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) Fork，新增 P 键 PDF/SVG 一键导出功能。
-**English docs:** [README.zh-CN.md](README.zh-CN.md)
+**English docs:** [README.EN.md](README.EN.md)
 
 ![html-ppt 封面 · 实时预览](docs/readme/hero.gif)
 
