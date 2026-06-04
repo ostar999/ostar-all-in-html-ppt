@@ -153,6 +153,29 @@ Only after those are clear, scaffold the deck and start writing.
 
 ### SVG/PNG export rules (CRITICAL — read before authoring custom styles)
 
+**🛑 MANDATORY: After generating ANY deck, you MUST verify export works.** Open
+the deck in a browser, press `P`, and confirm:
+1. The export dialog opens with all slide thumbnails visible and correctly styled.
+2. Click "导出 PDF (SVG)" or "导出 SVG (.zip)" — the download starts.
+3. Open the downloaded file — layout, colors, fonts, and terminal blocks match the browser rendering.
+
+If ANY of the above fails, run the checklist below BEFORE telling the user the deck is done.
+The same checklist applies when the user switches themes, templates, or adds animations —
+the inline `<style>` must stay in sync with every change.
+
+**Export repair checklist (run in order until fixed):**
+
+1. ☐ Are all critical CSS rules in an inline `<style>` tag (not external `<link>`)?
+2. ☐ Does `.slide` have explicit `background:var(--bg);color:var(--text-1)`?
+3. ☐ Are scoping classes (`.tpl-xxx`) removed or also added to each `<section class="slide">`?
+4. ☐ Are `.overview` / `.notes-overlay` / `.export-overlay` CSS blocks present?
+5. ☐ Does `.export-bar::after` contain the patience hint?
+6. ☐ Does `.export-thumb.selected` use `border-color: var(--accent-2)` (NOT `--accent`)?
+7. ☐ If user switched themes: are `:root` token values updated to the new theme?
+8. ☐ If user added animations: are the `@keyframes` definitions present in inline `<style>`?
+
+---
+
 - **All critical CSS MUST be inline in a `<style>` tag.** Do NOT put theme
   variables or base layout styles in external `<link>` stylesheets and rely on
   runtime's `fetch()` to load them at export time. `fetch()` fails silently on
