@@ -223,6 +223,23 @@ Only after those are clear, scaffold the deck and start writing.
   }
   ```
 
+- **Every deck MUST include an export wait hint.** The P-key export dialog must
+  show a patience message below the action buttons, because large decks take
+  noticeable time to render. Add this CSS rule to every deck's inline `<style>`:
+  ```css
+  .export-bar::after {
+    content: "由于信息较多，导出文件所花时间可能比较长，请耐心等待。";
+    flex: 0 0 100%;
+    text-align: center;
+    padding-top: 10px;
+    font-size: 12px;
+    color: var(--text-3);
+    opacity: .8;
+  }
+  ```
+  The `::after` pseudo-element on `.export-bar` (which is `display:flex; flex-wrap:wrap`)
+  takes a full row below the buttons. No JavaScript needed — pure CSS.
+
 ### Runtime chrome CSS (CRITICAL — when NOT loading `base.css`)
 
 If you choose to put all CSS inline in a `<style>` tag (instead of linking

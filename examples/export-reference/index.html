@@ -125,6 +125,7 @@ h3,h4{color:#fff}
 .export-thumb-num{font-size:12px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;flex-shrink:0}
 .export-thumb-title{font-size:12px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .export-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-top:1px solid var(--border);flex-shrink:0;gap:12px;flex-wrap:wrap}
+.export-bar::after{content:"由于信息较多，导出文件所花时间可能比较长，请耐心等待。";flex:0 0 100%;text-align:center;padding-top:10px;font-size:12px;color:var(--text-3);opacity:.8}
 .export-bar-left,.export-bar-right{display:flex;align-items:center;gap:8px}
 .export-btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-1);transition:background .15s,border-color .15s,opacity .15s}
 .export-btn:hover{background:var(--surface-2);border-color:var(--border-strong)}
