@@ -244,7 +244,7 @@ ostar-all-in-html-ppt/
   (可选) 走 CDN。
 - **资深设计师的默认值。** 字号规律、间距节奏、渐变、卡片处理都有态度 ——
   绝不是 "PowerPoint 2006" 那种味道。
-- **中英双语一等公民。** 预导入了 Noto Sans SC / Noto Serif SC。
+- **中英文并重。** 预导入了 Noto Sans SC / Noto Serif SC。
 
 ## 协议
 

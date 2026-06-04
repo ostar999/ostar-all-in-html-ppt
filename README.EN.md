@@ -242,7 +242,7 @@ ostar-all-in-html-ppt/
   and chart.js (optional).
 - **Senior-designer defaults.** Opinionated type scale, spacing rhythm,
   gradients and card treatments — no "Corporate PowerPoint 2006" vibes.
-- **Chinese + English first-class.** Noto Sans SC / Noto Serif SC pre-imported.
+- **First-class Chinese + English support.** Noto Sans SC / Noto Serif SC pre-imported.
 
 ## License
 
