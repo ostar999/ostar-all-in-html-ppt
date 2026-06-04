@@ -18,8 +18,8 @@
   --shadow:0 20px 60px rgba(0,0,0,.5);
   font-family:'Inter','Noto Sans SC',sans-serif;
 }
-body{background:#0d1117;color:var(--text-1)}
-.slide{padding:72px 96px;background:#0d1117;color:var(--text-1)}
+body{background:var(--bg);color:var(--text-1)}
+.slide{padding:72px 96px;background:var(--bg);color:var(--text-1)}
 .slide::before{content:"";position:absolute;inset:0;background:
   radial-gradient(60% 50% at 90% 10%,rgba(121,192,255,.12),transparent 60%),
   radial-gradient(50% 50% at 10% 90%,rgba(126,231,135,.08),transparent 60%);
@@ -488,7 +488,7 @@ function buildDialog(){
     '<div class="export-header"><h2>📄 导出幻灯片</h2><span class="export-count" id="exp-count">已选 11/11</span><button class="export-close">&times;</button></div>'+
     '<div class="export-grid" id="exp-grid"></div>'+
     '<div class="export-progress" id="exp-progress"><div class="export-progress-bar"><span id="exp-bar-fill"></span></div><span class="export-progress-text" id="exp-progress-text">准备中...</span></div>'+
-    '<div class="export-bar"><div class="export-bar-left"><button class="export-btn" id="exp-sel-all">全选</button><button class="export-btn" id="exp-sel-none">取消全选</button></div><div class="export-bar-right"><button class="export-btn" id="exp-cancel">取消</button><button class="export-btn" id="exp-svg-btn">📦 导出 SVG (.zip)</button><button class="export-btn export-btn-primary" id="exp-pdf-btn">📥 导出 PDF</button></div></div>'+
+    '<div class="export-bar"><div class="export-bar-left"><button class="export-btn" id="exp-sel-all">全选</button><button class="export-btn" id="exp-sel-none">取消全选</button></div><div class="export-bar-right"><button class="export-btn" id="exp-cancel">取消</button><button class="export-btn" id="exp-svg-btn">📦 导出 SVG (.zip)</button><button class="export-btn" id="exp-png-btn">🖼️ 导出 PNG (.zip)</button><button class="export-btn export-btn-primary" id="exp-pdf-btn">📥 导出 PDF</button></div></div>'+
   '</div>';
   document.body.appendChild(dialog);
 
@@ -499,6 +499,7 @@ function buildDialog(){
   dialog.querySelector('#exp-sel-none').onclick=()=>setAllChecks(false);
   dialog.querySelector('#exp-pdf-btn').onclick=()=>doExport('pdf');
   dialog.querySelector('#exp-svg-btn').onclick=()=>doExport('svg');
+  dialog.querySelector('#exp-png-btn').onclick=()=>doExport('png');
   dialog.addEventListener('click',function(e){if(e.target===dialog)toggleDialog(false)});
 }
 
@@ -624,7 +625,7 @@ function slideToSVG(slideEl,idx){
   return '<?xml version="1.0" encoding="UTF-8"?>\n'+
     '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+SLIDE_W+'" height="'+SLIDE_H+'" viewBox="0 0 '+SLIDE_W+' '+SLIDE_H+'">\n'+
     '  <foreignObject width="'+SLIDE_W+'" height="'+SLIDE_H+'" x="0" y="0">\n'+
-    '    <div xmlns="http://www.w3.org/1999/xhtml" style="width:'+SLIDE_W+'px;height:'+SLIDE_H+'px;overflow:hidden;background:#0d1117">\n'+
+    '    <div xmlns="http://www.w3.org/1999/xhtml" style="width:'+SLIDE_W+'px;height:'+SLIDE_H+'px;overflow:hidden;background:var(--bg)">\n'+
     '      <style><![CDATA['+fullCSS+']]></style>\n'+
     '      '+html+'\n'+
     '    </div>\n'+
@@ -672,6 +673,25 @@ async function slideToCanvas(slideEl){
   });
 }
 
+// --- Slide → PNG blob (via SVG foreignObject → canvas) ---
+// Uses data: URL (not blob:) to avoid canvas tainting from cross-origin font references.
+function slideToPNGBlob(slideEl){
+  return new Promise(function(resolve,reject){
+    var svg=slideToSVG(slideEl);
+    var dataUrl='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg)));
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');
+      canvas.width=SLIDE_W;canvas.height=SLIDE_H;
+      var ctx=canvas.getContext('2d');
+      try{ctx.drawImage(img,0,0,SLIDE_W,SLIDE_H)}catch(e){reject(new Error('Canvas tainted: '+e.message));return}
+      canvas.toBlob(function(b){resolve(b)},'image/png');
+    };
+    img.onerror=function(){reject(new Error('SVG render failed'))};
+    img.src=dataUrl;
+  });
+}
+
 // --- Export flows ---
 function showProgress(pct,text){
   var bar=dialog.querySelector('#exp-progress');
@@ -706,6 +726,19 @@ async function doExport(mode){
     if(mode==='pdf'){
       showProgress(10,'准备打印...');
       await exportPDF(indices);
+    }else if(mode==='png'){
+      showProgress(0,'准备中...');
+      if(indices.length===1){
+        showProgress(10,'生成 PNG...');
+        var allSlides=document.querySelectorAll('.slide');
+        var blob=await slideToPNGBlob(allSlides[indices[0]]);
+        showProgress(90,'下载中...');
+        downloadBlob(blob,getFilename('png').replace('.png','_'+((indices[0]||0)+1)+'.png'));
+        showProgress(100,'完成！');
+        await new Promise(function(r){setTimeout(r,600)});
+      }else{
+        await exportToPNGs(indices);
+      }
     }else{
       showProgress(0,'准备中...');
       var css='';
@@ -734,14 +767,14 @@ async function exportPDF(indices,css){
       /* Force background colors/gradients to print */
       '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
       'html,body{overflow:visible!important;margin:0!important;padding:0!important;'+
-        'background:#0d1117!important}'+
-      '.deck{position:static!important;overflow:visible!important;background:#0d1117!important}'+
+        'background:var(--bg)!important}'+
+      '.deck{position:static!important;overflow:visible!important;background:var(--bg)!important}'+
       /* Each slide = exactly one 1920×1080 page, pixel-perfect to browser rendering */
       '.slide{display:flex!important;visibility:visible!important;opacity:1!important;'+
         'position:relative!important;width:1920px!important;height:1080px!important;'+
         'page-break-after:always!important;break-after:page!important;'+
         'transform:none!important;margin:0!important;padding:72px 96px!important;'+
-        'box-sizing:border-box!important;background:#0d1117!important;color:#e6edf3!important;'+
+        'box-sizing:border-box!important;background:var(--bg)!important;color:#e6edf3!important;'+
         'overflow:hidden!important;flex-direction:column!important;justify-content:center!important}'+
       '.slide::before{content:""!important}'+
       '.slide:last-of-type{page-break-after:avoid!important}'+
@@ -749,7 +782,7 @@ async function exportPDF(indices,css){
     '}';
   // Screen rule: temporarily show selected slides so print engine sees them
   printCSS.textContent+=
-    '._pdf_show_{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;transform:none!important;background:#0d1117!important}'+
+    '._pdf_show_{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;transform:none!important;background:var(--bg)!important}'+
     '._pdf_hide_{display:none!important}';
 
   document.head.appendChild(printCSS);
@@ -802,7 +835,32 @@ async function exportSVGs(indices,css){
   var blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',
     compressionOptions:{level:6}});
   showProgress(98,'下载中...');
-  downloadBlob(blob,getFilename('svg').replace('.svg','.zip'));
+  downloadBlob(blob,getFilename('svg').replace('.svg','_svg.zip'));
+  showProgress(100,'完成！');
+  await new Promise(function(r){setTimeout(r,600)});
+}
+
+async function exportToPNGs(indices){
+  showProgress(5,'加载 JSZip...');
+  var JSZip=await getJSZip();
+  var zip=new JSZip();
+  var total=indices.length;
+  var slides=document.querySelectorAll('.slide');
+
+  for(var j=0;j<total;j++){
+    var pct=5+Math.round((j/total)*85);
+    showProgress(pct,'生成第 '+(j+1)+'/'+total+' 个 PNG...');
+    var idx=indices[j];
+    var blob=await slideToPNGBlob(slides[idx]);
+    var title=slides[idx].getAttribute('data-title')||('slide-'+(idx+1));
+    var fname='slide-'+(idx+1)+'-'+title.replace(/[^a-zA-Z0-9一-鿿_-]/g,'_').slice(0,40)+'.png';
+    zip.file(fname,blob);
+    await new Promise(function(r){setTimeout(r,10)});
+  }
+  showProgress(92,'打包 ZIP...');
+  var zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+  showProgress(96,'下载中...');
+  downloadBlob(zipBlob,getFilename('png').replace('.png','_png.zip'));
   showProgress(100,'完成！');
   await new Promise(function(r){setTimeout(r,600)});
 }

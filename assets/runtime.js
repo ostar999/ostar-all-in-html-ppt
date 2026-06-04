@@ -324,7 +324,7 @@
         '<div class="export-header"><h2>📄 导出幻灯片</h2><span class="export-count" id="exp-count"></span><button class="export-close">&times;</button></div>'+
         '<div class="export-grid" id="exp-grid"></div>'+
         '<div class="export-progress" id="exp-progress"><div class="export-progress-bar"><span id="exp-bar-fill"></span></div><span class="export-progress-text" id="exp-progress-text">准备中...</span></div>'+
-        '<div class="export-bar"><div class="export-bar-left"><button class="export-btn" id="exp-sel-all">全选</button><button class="export-btn" id="exp-sel-none">取消全选</button></div><div class="export-bar-right"><button class="export-btn" id="exp-cancel">取消</button><button class="export-btn" id="exp-svg-btn">📦 导出 SVG (.zip)</button><button class="export-btn export-btn-primary" id="exp-pdf-btn">📥 导出 PDF</button></div></div>'+
+        '<div class="export-bar"><div class="export-bar-left"><button class="export-btn" id="exp-sel-all">全选</button><button class="export-btn" id="exp-sel-none">取消全选</button></div><div class="export-bar-right"><button class="export-btn" id="exp-cancel">取消</button><button class="export-btn" id="exp-svg-btn">📦 导出 SVG (.zip)</button><button class="export-btn" id="exp-png-btn">🖼️ 导出 PNG (.zip)</button><button class="export-btn export-btn-primary" id="exp-pdf-btn">📥 导出 PDF</button></div></div>'+
       '</div>';
       document.body.appendChild(exportDialog);
       exportDialog.querySelector('.export-close').onclick=function(){toggleExportDialog(false)};
@@ -333,6 +333,7 @@
       exportDialog.querySelector('#exp-sel-none').onclick=function(){setAllExportChecks(false)};
       exportDialog.querySelector('#exp-pdf-btn').onclick=function(){doExport('pdf')};
       exportDialog.querySelector('#exp-svg-btn').onclick=function(){doExport('svg')};
+      exportDialog.querySelector('#exp-png-btn').onclick=function(){doExportPNG()};
       exportDialog.addEventListener('click',function(e){if(e.target===exportDialog)toggleExportDialog(false)});
       window.addEventListener('resize',function(){
         if(!exportDialog||!exportDialog.classList.contains('open'))return;
@@ -441,7 +442,7 @@
       return '<?xml version="1.0" encoding="UTF-8"?>\n'+
         '<svg xmlns="http://www.w3.org/2000/svg" width="'+SLIDE_W+'" height="'+SLIDE_H+'" viewBox="0 0 '+SLIDE_W+' '+SLIDE_H+'">\n'+
         '  <foreignObject width="'+SLIDE_W+'" height="'+SLIDE_H+'" x="0" y="0">\n'+
-        '    <div xmlns="http://www.w3.org/1999/xhtml" style="width:'+SLIDE_W+'px;height:'+SLIDE_H+'px;overflow:hidden;background:#0d1117">\n'+
+        '    <div xmlns="http://www.w3.org/1999/xhtml" style="width:'+SLIDE_W+'px;height:'+SLIDE_H+'px;overflow:hidden;background:var(--bg)">\n'+
         '      <style><![CDATA['+fullCSS+']]></style>\n'+
         '      '+html+'\n'+
         '    </div>\n'+
@@ -525,11 +526,100 @@
       _showExportProgress(95,'打包 ZIP...');
       var blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
       _showExportProgress(98,'下载中...');
-      var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=_getExportFilename('svg').replace('.svg','.zip');
+      var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=_getExportFilename('svg').replace('.svg','_svg.zip');
       document.body.appendChild(a);a.click();document.body.removeChild(a);
       setTimeout(function(){URL.revokeObjectURL(url)},30000);
       _showExportProgress(100,'完成！');
       await new Promise(function(r){setTimeout(r,600)});
+    }
+
+    /* ===== PNG Export (data-URL → canvas → PNG blob) =====
+     * Avoids blob-URL canvas tainting by using base64 data URL.
+     * Falls back to inline <style> + computed :root for self-contained SVG. */
+    function slideToPNGBlob(slideEl){
+      return new Promise(function(resolve,reject){
+        var clone=slideEl.cloneNode(true);
+        clone.querySelectorAll('[data-anim],[data-fx]').forEach(function(el){el.removeAttribute('data-anim');el.removeAttribute('data-fx')});
+        clone.classList.add('is-active');
+        clone.querySelectorAll('.anim-fade-up,.anim-fade-left,.anim-fade-right').forEach(function(el){el.classList.remove('anim-fade-up','anim-fade-left','anim-fade-right')});
+        clone.querySelectorAll('.notes,aside.notes,.speaker-notes').forEach(function(el){el.remove()});
+
+        var css=_getAllCSS_sync();
+        var rootBlock=_buildRootBlock();
+        var fullCSS=_escapeXML(rootBlock+'\n'+css);
+        var html=new XMLSerializer().serializeToString(clone);
+        html=_escapeXML(html);
+
+        var svg='<?xml version="1.0" encoding="UTF-8"?>\n'+
+          '<svg xmlns="http://www.w3.org/2000/svg" width="'+SLIDE_W+'" height="'+SLIDE_H+'" viewBox="0 0 '+SLIDE_W+' '+SLIDE_H+'">\n'+
+          '  <foreignObject width="'+SLIDE_W+'" height="'+SLIDE_H+'" x="0" y="0">\n'+
+          '    <div xmlns="http://www.w3.org/1999/xhtml" style="width:'+SLIDE_W+'px;height:'+SLIDE_H+'px;overflow:hidden;background:var(--bg)">\n'+
+          '      <style><![CDATA['+fullCSS+']]></style>\n'+
+          '      '+html+'\n'+
+          '    </div>\n'+
+          '  </foreignObject>\n'+
+          '</svg>';
+
+        // Use data: URL (not blob:) to avoid canvas tainting
+        var dataUrl='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg)));
+        var img=new Image();
+        img.onload=function(){
+          var canvas=document.createElement('canvas');
+          canvas.width=SLIDE_W;canvas.height=SLIDE_H;
+          var ctx=canvas.getContext('2d');
+          try{ctx.drawImage(img,0,0,SLIDE_W,SLIDE_H)}catch(e){reject(new Error('Canvas tainted: '+e.message));return}
+          canvas.toBlob(function(b){resolve(b)},'image/png');
+        };
+        img.onerror=function(){reject(new Error('SVG render failed for slide'))};
+        img.src=dataUrl;
+      });
+    }
+
+    async function exportToPNGs(indices){
+      _showExportProgress(5,'加载 JSZip...');
+      var JSZip=await getJSZip();var zip=new JSZip();var total_=indices.length;
+      for(var j=0;j<total_;j++){
+        var pct=5+Math.round((j/total_)*85);
+        _showExportProgress(pct,'生成第 '+(j+1)+'/'+total_+' 个 PNG...');
+        var idx=indices[j];
+        var blob=await slideToPNGBlob(slides[idx]);
+        var title=slides[idx].getAttribute('data-title')||('slide-'+(idx+1));
+        var fname='slide-'+(idx+1)+'-'+title.replace(/[^a-zA-Z0-9一-鿿_-]/g,'_').slice(0,40)+'.png';
+        zip.file(fname,blob);
+        await new Promise(function(r){setTimeout(r,10)});
+      }
+      _showExportProgress(92,'打包 ZIP...');
+      var zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+      _showExportProgress(96,'下载中...');
+      var url=URL.createObjectURL(zipBlob);var a=document.createElement('a');a.href=url;a.download=_getExportFilename('png').replace('.png','_png.zip');
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(function(){URL.revokeObjectURL(url)},30000);
+      _showExportProgress(100,'完成！');
+      await new Promise(function(r){setTimeout(r,600)});
+    }
+
+    async function doExportPNG(){
+      if(_exporting)return;
+      var indices=getSelectedExportIndices();
+      if(!indices.length){alert('请至少选择一页幻灯片。');return}
+      _exporting=true;_disableExportBtns(true);
+      try{
+        if(indices.length===1){
+          // Single slide → direct download
+          _showExportProgress(10,'生成 PNG...');
+          var blob=await slideToPNGBlob(slides[indices[0]]);
+          _showExportProgress(90,'下载中...');
+          var a=document.createElement('a');
+          a.href=URL.createObjectURL(blob);
+          a.download=_getExportFilename('png').replace('.png','_'+((indices[0]||0)+1)+'.png');
+          document.body.appendChild(a);a.click();document.body.removeChild(a);
+          _showExportProgress(100,'完成！');
+          await new Promise(function(r){setTimeout(r,600)});
+        }else{
+          await exportToPNGs(indices);
+        }
+      }catch(e){alert('PNG 导出失败: '+e.message);console.error(e)}
+      finally{_exporting=false;_disableExportBtns(false);_hideExportProgress()}
     }
 
     /* ========== PRESENTER MODE — Magnetic-card popup window ========== */

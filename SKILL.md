@@ -24,7 +24,7 @@ One command, no build. Pure static HTML/CSS/JS with only CDN webfonts.
 - **31 layouts** (`templates/single-page/*.html`) with realistic demo data
 - **27 CSS animations** (`assets/animations/animations.css`) via `data-anim`
 - **20 canvas FX animations** (`assets/animations/fx/*.js`) via `data-fx` — particle-burst, confetti-cannon, firework, starfield, matrix-rain, knowledge-graph (force-directed), neural-net (pulses), constellation, orbit-ring, galaxy-swirl, word-cascade, letter-explode, chain-react, magnetic-field, data-stream, gradient-blob, sparkle-trail, shockwave, typewriter-multi, counter-explosion
-- **Keyboard runtime** (`assets/runtime.js`) — arrows, T (theme), A (anim), F/O, **S (presenter mode: magnetic-card popup with CURRENT / NEXT / SCRIPT / TIMER cards)**, **P (export: thumbnail picker → PDF via browser print or SVG ZIP download)**, N (notes drawer), R (reset timer in presenter)
+- **Keyboard runtime** (`assets/runtime.js`) — arrows, T (theme), A (anim), F/O, **S (presenter mode: magnetic-card popup with CURRENT / NEXT / SCRIPT / TIMER cards)**, **P (export: thumbnail picker → PDF via browser print, SVG ZIP, or PNG ZIP download)**, N (notes drawer), R (reset timer in presenter)
 - **FX runtime** (`assets/animations/fx-runtime.js`) — auto-inits `[data-fx]` on slide enter, cleans up on leave
 - **Showcase decks** for themes / layouts / animations / full-decks gallery
 - **Headless Chrome render script** for PNG export
@@ -151,6 +151,44 @@ Only after those are clear, scaffold the deck and start writing.
   by default — it only appears in the S overlay. Slides should contain ONLY
   audience-facing content (titles, bullet points, data, charts, images).
 
+### SVG/PNG export rules (CRITICAL — read before authoring custom styles)
+
+- **All critical CSS MUST be inline in a `<style>` tag.** Do NOT put theme
+  variables or base layout styles in external `<link>` stylesheets and rely on
+  runtime's `fetch()` to load them at export time. `fetch()` fails silently on
+  `file://` (browser CORS policy), and SVGs rendered without those styles will
+  be broken. See `examples/export-reference/index.html` for the canonical
+  pattern: one big `<style>` block containing `:root` theme tokens + all
+  layout primitives + custom component styles + export dialog CSS.
+
+- **Scoping classes (`.tpl-<name>`) MUST be present in the SVG DOM.** The
+  `slideToSVG()` function clones only the `<section class="slide">` element —
+  it does NOT include the outer `<body>` or `<div class="deck">`. If you use
+  a scoping class like `.tpl-suno-tutorial` on `<body>` and write selectors
+  like `.tpl-suno-tutorial .code-block`, those selectors will FAIL in the SVG
+  because the `.tpl-suno-tutorial` ancestor is missing. **Fix**: add the scoping
+  class to each `<section class="slide tpl-suno-tutorial">` as well, and update
+  selectors that target `.slide` as a descendant (e.g., `.tpl-suno-tutorial .slide::before`
+  must also become `.slide.tpl-suno-tutorial::before`).
+
+- **The `.slide` class must set `background` and `color` explicitly.** In a
+  browser, these are inherited from `<html>`/`<body>` via `base.css`. In an SVG
+  `foreignObject`, there is no `<html>` or `<body>`, so the slide falls back to
+  transparent/black. Always add `background:var(--bg);color:var(--text-1)` to
+  `.slide` in your inline CSS.
+
+- **SVG `foreignObject` is browser-only.** Non-browser tools (ImageMagick,
+  Mac Preview, sharp, etc.) do not render `foreignObject` content — they
+  produce blank images. For PNG output, use the built-in P-key PNG export
+  (SVG → data URL → canvas → PNG) or `scripts/render.sh` (headless Chrome).
+  The built-in PNG export uses `data:` URLs (NOT `blob:` URLs) to avoid
+  canvas tainting from cross-origin font references.
+
+- **`replace_all` is fragile with varying HTML attributes.** When doing
+  batch replacements like adding a class to all slides, elements with extra
+  attributes (e.g., `<section class="slide center">`) won't match
+  `<section class="slide"`. Always grep for leftovers after `replace_all`.
+
 ## Writing guide
 
 See [references/authoring-guide.md](references/authoring-guide.md) for a
@@ -218,7 +256,7 @@ capture, runtime.js exposes `#/N` deep-links, and render.sh iterates 1..N.
 ←  →  Space  PgUp  PgDn  Home  End    navigate
 F                                       fullscreen
 S                                       open presenter window (magnetic cards: current/next/script/timer)
-P                                       export dialog — select slides → PDF (browser print) or SVG (.zip)
+P                                       export dialog — select slides → PDF (browser print), SVG (.zip), or PNG (.zip)
 N                                       quick notes drawer (bottom overlay)
 R                                       reset timer (in presenter window)
 ?preview=N                              URL param — force preview-only mode (single slide, no chrome)
