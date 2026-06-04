@@ -24,7 +24,7 @@ One command, no build. Pure static HTML/CSS/JS with only CDN webfonts.
 - **31 layouts** (`templates/single-page/*.html`) with realistic demo data
 - **27 CSS animations** (`assets/animations/animations.css`) via `data-anim`
 - **20 canvas FX animations** (`assets/animations/fx/*.js`) via `data-fx` — particle-burst, confetti-cannon, firework, starfield, matrix-rain, knowledge-graph (force-directed), neural-net (pulses), constellation, orbit-ring, galaxy-swirl, word-cascade, letter-explode, chain-react, magnetic-field, data-stream, gradient-blob, sparkle-trail, shockwave, typewriter-multi, counter-explosion
-- **Keyboard runtime** (`assets/runtime.js`) — arrows, T (theme), A (anim), F/O, **S (presenter mode: magnetic-card popup with CURRENT / NEXT / SCRIPT / TIMER cards)**, **P (export: thumbnail picker → PDF via browser print, SVG ZIP, or PNG ZIP download)**, N (notes drawer), R (reset timer in presenter)
+- **Keyboard runtime** (`assets/runtime.js`) — arrows, T (theme), A (anim), F/O, **S (presenter mode: magnetic-card popup with CURRENT / NEXT / SCRIPT / TIMER cards)**, **P (export: thumbnail picker → PDF via browser print (SVG) / PDF via PNG merge / SVG ZIP / PNG ZIP download)**, N (notes drawer), R (reset timer in presenter)
 - **FX runtime** (`assets/animations/fx-runtime.js`) — auto-inits `[data-fx]` on slide enter, cleans up on leave
 - **Showcase decks** for themes / layouts / animations / full-decks gallery
 - **Headless Chrome render script** for PNG export
@@ -58,7 +58,7 @@ Each card is **draggable by its header** and **resizable by the bottom-right cor
 Only `presenter-mode-reveal` is designed from the ground up around the feature with proper example 逐字稿 on every slide.
 
 Keyboard in presenter window: `← →` navigate (syncs audience) · `R` reset timer · `Esc` close popup.
-Keyboard in audience window: `S` open presenter · `P` export PDF/SVG · `T` cycle theme · `← →` navigate (syncs presenter) · `F` fullscreen · `O` overview.
+Keyboard in audience window: `S` open presenter · `P` export PDF(SVG)/PDF(PNG)/SVG/PNG · `T` cycle theme · `← →` navigate (syncs presenter) · `F` fullscreen · `O` overview.
 
 ## Before you author anything — ALWAYS ask or recommend
 
@@ -256,7 +256,7 @@ capture, runtime.js exposes `#/N` deep-links, and render.sh iterates 1..N.
 ←  →  Space  PgUp  PgDn  Home  End    navigate
 F                                       fullscreen
 S                                       open presenter window (magnetic cards: current/next/script/timer)
-P                                       export dialog — select slides → PDF (browser print), SVG (.zip), or PNG (.zip)
+P                                       export dialog — select slides → PDF via browser print (SVG) / PDF via PNG merge / SVG (.zip) / PNG (.zip)
 N                                       quick notes drawer (bottom overlay)
 R                                       reset timer (in presenter window)
 ?preview=N                              URL param — force preview-only mode (single slide, no chrome)

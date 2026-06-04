@@ -488,7 +488,7 @@ function buildDialog(){
     '<div class="export-header"><h2>📄 导出幻灯片</h2><span class="export-count" id="exp-count">已选 11/11</span><button class="export-close">&times;</button></div>'+
     '<div class="export-grid" id="exp-grid"></div>'+
     '<div class="export-progress" id="exp-progress"><div class="export-progress-bar"><span id="exp-bar-fill"></span></div><span class="export-progress-text" id="exp-progress-text">准备中...</span></div>'+
-    '<div class="export-bar"><div class="export-bar-left"><button class="export-btn" id="exp-sel-all">全选</button><button class="export-btn" id="exp-sel-none">取消全选</button></div><div class="export-bar-right"><button class="export-btn" id="exp-cancel">取消</button><button class="export-btn" id="exp-svg-btn">📦 导出 SVG (.zip)</button><button class="export-btn" id="exp-png-btn">🖼️ 导出 PNG (.zip)</button><button class="export-btn export-btn-primary" id="exp-pdf-btn">📥 导出 PDF</button></div></div>'+
+    '<div class="export-bar"><div class="export-bar-left"><button class="export-btn" id="exp-sel-all">全选</button><button class="export-btn" id="exp-sel-none">取消全选</button></div><div class="export-bar-right"><button class="export-btn" id="exp-cancel">取消</button><button class="export-btn" id="exp-svg-btn">📦 导出 SVG (.zip)</button><button class="export-btn" id="exp-png-btn">🖼️ 导出 PNG (.zip)</button><button class="export-btn export-btn-primary" id="exp-pdf-svg-btn">📥 导出 PDF (SVG)</button><button class="export-btn export-btn-primary" id="exp-pdf-png-btn">📥 导出 PDF (PNG)</button></div></div>'+
   '</div>';
   document.body.appendChild(dialog);
 
@@ -497,7 +497,8 @@ function buildDialog(){
   dialog.querySelector('#exp-cancel').onclick=()=>toggleDialog(false);
   dialog.querySelector('#exp-sel-all').onclick=()=>setAllChecks(true);
   dialog.querySelector('#exp-sel-none').onclick=()=>setAllChecks(false);
-  dialog.querySelector('#exp-pdf-btn').onclick=()=>doExport('pdf');
+  dialog.querySelector('#exp-pdf-svg-btn').onclick=()=>doExport('pdf-svg');
+  dialog.querySelector('#exp-pdf-png-btn').onclick=()=>doExport('pdf-png');
   dialog.querySelector('#exp-svg-btn').onclick=()=>doExport('svg');
   dialog.querySelector('#exp-png-btn').onclick=()=>doExport('png');
   dialog.addEventListener('click',function(e){if(e.target===dialog)toggleDialog(false)});
@@ -710,10 +711,11 @@ function disableBtns(v){
 
 function escapeHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
-function getFilename(ext){
+function getFilename(ext, suffix){
   var h1=document.querySelector('h1');
   var title=h1?h1.textContent:'presentation';
-  return title.trim().replace(/[^a-zA-Z0-9一-鿿_-]/g,'_').replace(/_+/g,'_').slice(0,60)+'.'+ext;
+  var base=title.trim().replace(/[^a-zA-Z0-9一-鿿_-]/g,'_').replace(/_+/g,'_').slice(0,60);
+  return base+(suffix||'')+'.'+ext;
 }
 
 async function doExport(mode){
@@ -723,9 +725,12 @@ async function doExport(mode){
   isExporting=true;disableBtns(true);
 
   try{
-    if(mode==='pdf'){
-      showProgress(10,'准备打印...');
-      await exportPDF(indices);
+    if(mode==='pdf-svg'){
+      showProgress(10,'准备打印 (SVG)...');
+      await exportPDFSVG(indices);
+    }else if(mode==='pdf-png'){
+      showProgress(0,'渲染幻灯片为 PNG...');
+      await exportPDFPNG(indices);
     }else if(mode==='png'){
       showProgress(0,'准备中...');
       if(indices.length===1){
@@ -752,7 +757,7 @@ async function doExport(mode){
   }
 }
 
-async function exportPDF(indices,css){
+async function exportPDFSVG(indices,css){
   // Use browser's native Print → "Save as PDF" for pixel-perfect rendering
   var allSlides=document.querySelectorAll('.slide');
   var selectedSet=new Set(indices);
@@ -807,6 +812,55 @@ async function exportPDF(indices,css){
     allSlides.forEach(function(s,i){s.className=origClasses[i]});
     if(printCSS.parentNode)printCSS.parentNode.removeChild(printCSS);
   },350);
+}
+
+async function exportPDFPNG(indices){
+  // Render each slide to PNG, then print as PDF (raster-based, no font/CSS dependency)
+  var slides=document.querySelectorAll('.slide');
+  var total=indices.length;
+  var pngUrls=[];
+  for(var j=0;j<total;j++){
+    var pct=5+Math.round((j/total)*70);
+    showProgress(pct,'渲染第 '+(j+1)+'/'+total+' 页为 PNG...');
+    var idx=indices[j];
+    var blob=await slideToPNGBlob(slides[idx]);
+    var dataUrl=URL.createObjectURL(blob);
+    pngUrls.push(dataUrl);
+    await new Promise(function(r){setTimeout(r,10)});
+  }
+  showProgress(75,'生成打印页...');
+  var imgs='';
+  for(var k=0;k<pngUrls.length;k++){
+    imgs+='<img src="'+pngUrls[k]+'" style="width:1920px;height:1080px;display:block;page-break-after:'+(k<pngUrls.length-1?'always':'avoid')+'">';
+  }
+  var printHTML='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+getFilename('pdf','_png').replace('.pdf','')+'</title>'+
+    '<style>'+
+    '@media print{'+
+      '@page{size:1920px 1080px;margin:0}'+
+      'html,body{margin:0;padding:0;width:1920px}'+
+      'img{display:block;width:1920px;height:1080px;page-break-after:always}'+
+      'img:last-child{page-break-after:avoid}'+
+    '}'+
+    'html,body{background:#0d1117;margin:0;padding:0}'+
+    'img{display:block;width:1920px;height:auto}'+
+    '</style></head><body>'+imgs+'</body></html>';
+  showProgress(85,'打开打印对话框...');
+  hideProgress();
+  toggleDialog(false);
+  var w=window.open('','_blank','width=1000,height=800');
+  if(!w){alert('请允许弹出窗口以完成 PDF 导出。');return}
+  w.document.write(printHTML);
+  w.document.close();
+  await new Promise(function(resolve){
+    w.onload=function(){setTimeout(resolve,500)};
+    setTimeout(resolve,1200);
+  });
+  w.focus();
+  w.print();
+  setTimeout(function(){
+    for(var u=0;u<pngUrls.length;u++){URL.revokeObjectURL(pngUrls[u])}
+    w.close();
+  },30000);
 }
 
 async function exportSVGs(indices,css){

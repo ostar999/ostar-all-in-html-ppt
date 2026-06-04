@@ -4,7 +4,7 @@
 > **36 themes**, **15 full-deck templates**, **31 page layouts**,
 > **47 animations** (27 CSS + 20 canvas FX), a **true presenter mode**
 > with pixel-perfect previews + speaker script + timer, and a **built-in
-> PDF/SVG/PNG export** with thumbnail picker — all pure static HTML/CSS/JS,
+> PDF(SVG)/PDF(PNG)/SVG/PNG export** with thumbnail picker — all pure static HTML/CSS/JS,
 > no build step.
 
 🚀 Forked from [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) with gratitude to author lewis. Added P-key PDF/SVG/PNG export and other improvements.
@@ -12,7 +12,7 @@
 
 ![html-ppt — cover with live previews](docs/readme/hero.gif)
 
-> One command installs **36 themes × 20 canvas FX × 31 layouts × 15 full decks + presenter mode + PDF/SVG/PNG export**. Every preview above is a live iframe of a real template file rendering inside the deck — no screenshots, no mock-ups.
+> One command installs **36 themes × 20 canvas FX × 31 layouts × 15 full decks + presenter mode + PDF(SVG)/PDF(PNG)/SVG/PNG export**. Every preview above is a live iframe of a real template file rendering inside the deck — no screenshots, no mock-ups.
 
 ## 🎤 Presenter Mode (new!)
 
@@ -49,11 +49,12 @@ word speaker scripts on every slide.
 Press `P` on any deck to open the **export dialog** with a thumbnail grid:
 
 - **Select slides** by clicking thumbnails, with Select All / Deselect All
-- **📥 Export PDF**: Uses browser native print (`@page{size:1920px 1080px}` exact 16:9). Choose "Save as PDF" → Landscape in Chrome.
+- **📥 Export PDF (SVG)**: Browser native print of the DOM (selectable text, vector, searchable), filename `_svg.pdf`. Choose "Save as PDF" → Landscape in Chrome.
+- **📥 Export PDF (PNG)**: Renders each slide to PNG first, then prints merged pages (raster, no font dependency, cross-platform consistent), filename `_png.pdf`. Ideal for sharing with users who don't have the required fonts installed.
 - **📦 Export SVG (.zip)**: Each slide as an independent SVG file (`foreignObject` + full CSS), packaged via JSZip.
 - **🖼️ Export PNG (.zip)**: Renders slides to pixel-perfect PNG via SVG → data URL → canvas pipeline. Single slide downloads as `.png`, multiple slides auto-zip.
 
-> PDF uses the browser's native rendering engine. SVGs can be opened and edited in any browser. PNG uses `data:` URLs (not `blob:` URLs) to avoid canvas tainting from cross-origin font references — all styles, colors, and gradients are preserved (fonts may fall back to system fonts). For fully faithful PNG output, use `scripts/render.sh` (headless Chrome).
+> PDF (SVG) uses the browser's native rendering engine with selectable text; PDF (PNG) renders to images first for consistent cross-platform display. PNG uses `data:` URLs (not `blob:` URLs) to avoid canvas tainting from cross-origin font references — all styles, colors, and gradients are preserved (fonts may fall back to system fonts). For fully faithful PNG output, use `scripts/render.sh` (headless Chrome).
 
 ## Install (one command)
 
@@ -73,7 +74,7 @@ that supports AgentSkills can author presentations by asking things like:
 | | Count | Where |
 |---|---|---|
 | 🎤 **Presenter mode** | **NEW** | `S` key / `?preview=N` |
-| 📄 **PDF/SVG/PNG export** | **NEW** | `P` key / `runtime.js` |
+| 📄 **PDF/SVG/PNG export** | **NEW dual-mode** | `P` key / `runtime.js` |
 | 🎨 **Themes** | **36** | `assets/themes/*.css` |
 | 📑 **Full-deck templates** | **15** | `templates/full-decks/<name>/` |
 | 🧩 **Single-page layouts** | **31** | `templates/single-page/*.html` |
@@ -183,7 +184,7 @@ open templates/full-decks-index.html       # all 15 full decks
 ← → Space PgUp PgDn Home End   navigate
 F                               fullscreen
 S                               open presenter window (magnetic cards)
-P                               export dialog — select slides → PDF / SVG (.zip)
+P                               export dialog — select slides → PDF(SVG) / PDF(PNG) / SVG(.zip) / PNG(.zip)
 N                               quick notes drawer (bottom)
 R                               reset timer (in presenter window)
 O                               slide overview grid

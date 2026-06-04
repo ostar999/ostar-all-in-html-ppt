@@ -324,14 +324,15 @@
         '<div class="export-header"><h2>📄 导出幻灯片</h2><span class="export-count" id="exp-count"></span><button class="export-close">&times;</button></div>'+
         '<div class="export-grid" id="exp-grid"></div>'+
         '<div class="export-progress" id="exp-progress"><div class="export-progress-bar"><span id="exp-bar-fill"></span></div><span class="export-progress-text" id="exp-progress-text">准备中...</span></div>'+
-        '<div class="export-bar"><div class="export-bar-left"><button class="export-btn" id="exp-sel-all">全选</button><button class="export-btn" id="exp-sel-none">取消全选</button></div><div class="export-bar-right"><button class="export-btn" id="exp-cancel">取消</button><button class="export-btn" id="exp-svg-btn">📦 导出 SVG (.zip)</button><button class="export-btn" id="exp-png-btn">🖼️ 导出 PNG (.zip)</button><button class="export-btn export-btn-primary" id="exp-pdf-btn">📥 导出 PDF</button></div></div>'+
+        '<div class="export-bar"><div class="export-bar-left"><button class="export-btn" id="exp-sel-all">全选</button><button class="export-btn" id="exp-sel-none">取消全选</button></div><div class="export-bar-right"><button class="export-btn" id="exp-cancel">取消</button><button class="export-btn" id="exp-svg-btn">📦 导出 SVG (.zip)</button><button class="export-btn" id="exp-png-btn">🖼️ 导出 PNG (.zip)</button><button class="export-btn export-btn-primary" id="exp-pdf-svg-btn">📥 导出 PDF (SVG)</button><button class="export-btn export-btn-primary" id="exp-pdf-png-btn">📥 导出 PDF (PNG)</button></div></div>'+
       '</div>';
       document.body.appendChild(exportDialog);
       exportDialog.querySelector('.export-close').onclick=function(){toggleExportDialog(false)};
       exportDialog.querySelector('#exp-cancel').onclick=function(){toggleExportDialog(false)};
       exportDialog.querySelector('#exp-sel-all').onclick=function(){setAllExportChecks(true)};
       exportDialog.querySelector('#exp-sel-none').onclick=function(){setAllExportChecks(false)};
-      exportDialog.querySelector('#exp-pdf-btn').onclick=function(){doExport('pdf')};
+      exportDialog.querySelector('#exp-pdf-svg-btn').onclick=function(){doExport('pdf-svg')};
+      exportDialog.querySelector('#exp-pdf-png-btn').onclick=function(){doExport('pdf-png')};
       exportDialog.querySelector('#exp-svg-btn').onclick=function(){doExport('svg')};
       exportDialog.querySelector('#exp-png-btn').onclick=function(){doExportPNG()};
       exportDialog.addEventListener('click',function(e){if(e.target===exportDialog)toggleExportDialog(false)});
@@ -463,9 +464,10 @@
       exportDialog.querySelectorAll('.export-btn').forEach(function(b){b.disabled=v});
     }
     function _escapeHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-    function _getExportFilename(ext){
+    function _getExportFilename(ext, suffix){
       var h1=document.querySelector('h1');var title=h1?h1.textContent:'presentation';
-      return title.trim().replace(/[^a-zA-Z0-9一-鿿_-]/g,'_').replace(/_+/g,'_').slice(0,60)+'.'+ext;
+      var base=title.trim().replace(/[^a-zA-Z0-9一-鿿_-]/g,'_').replace(/_+/g,'_').slice(0,60);
+      return base+(suffix||'')+'.'+ext;
     }
 
     async function doExport(mode){
@@ -474,7 +476,8 @@
       if(!indices.length){alert('请至少选择一页幻灯片。');return}
       _exporting=true;_disableExportBtns(true);
       try{
-        if(mode==='pdf'){_showExportProgress(10,'准备打印...');await exportToPDF(indices)}
+        if(mode==='pdf-svg'){_showExportProgress(10,'准备打印 (SVG)...');await exportToPDFSVG(indices)}
+        else if(mode==='pdf-png'){_showExportProgress(0,'渲染幻灯片为 PNG...');await exportToPDFPNG(indices)}
         else{
           _showExportProgress(0,'准备中...');
           var css='';try{css=await _getAllCSS()}catch(e){css=_getAllCSS_sync()}
@@ -484,7 +487,7 @@
       finally{_exporting=false;_disableExportBtns(false);_hideExportProgress()}
     }
 
-    function exportToPDF(indices){
+    function exportToPDFSVG(indices){
       var selectedSet=new Set(indices);
       var printCSS=document.createElement('style');printCSS.id='_pdf_print_';
       printCSS.textContent='@media print{'+
@@ -506,6 +509,54 @@
         slides.forEach(function(s,i){s.className=origClasses[i]});
         if(printCSS.parentNode)printCSS.parentNode.removeChild(printCSS);
       },350);
+    }
+
+    async function exportToPDFPNG(indices){
+      // Render each slide to PNG, then print as PDF (raster-based, no font/CSS dependency)
+      var total_=indices.length;
+      var pngUrls=[];
+      for(var j=0;j<total_;j++){
+        var pct=5+Math.round((j/total_)*70);
+        _showExportProgress(pct,'渲染第 '+(j+1)+'/'+total_+' 页为 PNG...');
+        var idx=indices[j];
+        var blob=await slideToPNGBlob(slides[idx]);
+        var dataUrl=URL.createObjectURL(blob);
+        pngUrls.push(dataUrl);
+        await new Promise(function(r){setTimeout(r,10)});
+      }
+      _showExportProgress(75,'生成打印页...');
+      var imgs='';
+      for(var k=0;k<pngUrls.length;k++){
+        imgs+='<img src="'+pngUrls[k]+'" style="width:1920px;height:1080px;display:block;page-break-after:'+(k<pngUrls.length-1?'always':'avoid')+'">';
+      }
+      var printHTML='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+_getExportFilename('pdf','_png').replace('.pdf','')+'</title>'+
+        '<style>'+
+        '@media print{'+
+          '@page{size:1920px 1080px;margin:0}'+
+          'html,body{margin:0;padding:0;width:1920px}'+
+          'img{display:block;width:1920px;height:1080px;page-break-after:always}'+
+          'img:last-child{page-break-after:avoid}'+
+        '}'+
+        'html,body{background:#0d1117;margin:0;padding:0}'+
+        'img{display:block;width:1920px;height:auto}'+
+        '</style></head><body>'+imgs+'</body></html>';
+      _showExportProgress(85,'打开打印对话框...');
+      _hideExportProgress();
+      toggleExportDialog(false);
+      var w=window.open('','_blank','width=1000,height=800');
+      if(!w){alert('请允许弹出窗口以完成 PDF 导出。');return}
+      w.document.write(printHTML);
+      w.document.close();
+      await new Promise(function(resolve){
+        w.onload=function(){setTimeout(resolve,500)};
+        setTimeout(resolve,1200);
+      });
+      w.focus();
+      w.print();
+      setTimeout(function(){
+        for(var u=0;u<pngUrls.length;u++){URL.revokeObjectURL(pngUrls[u])}
+        w.close();
+      },30000);
     }
 
     async function exportToSVGs(indices,css){
