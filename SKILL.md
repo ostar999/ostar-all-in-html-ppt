@@ -124,6 +124,21 @@ Only after those are clear, scaffold the deck and start writing.
 
 ## Authoring rules (important)
 
+- **🛑 DEFAULT: Single self-contained HTML file.** Every generated deck MUST be a
+  single `.html` file containing ALL CSS and JS inline — no external `<link>`
+  stylesheets, no `<script src="...">` references to `assets/`. The only exception
+  is Google Fonts CDN `@import` (fonts are binary, cannot be inlined). This means:
+  - Read and inline these source files into the HTML (paths relative to skill root):
+    - `assets/base.css` → full content into `<style>` (layout primitives, chrome, overview, notes, export dialog, print)
+    - `assets/animations/animations.css` → all `@keyframes` + animation classes into same `<style>`
+    - `assets/themes/<name>.css` → `:root` token values into same `<style>` (or copy tokens from template's scoped style)
+    - `templates/full-decks/<name>/style.css` → custom component styles into same `<style>` (strip `.tpl-xxx` scoping)
+    - `assets/runtime.js` → full content into `<script>` at end of `<body>`
+  - **Do NOT** create `style.css`, `theme.css`, or any external asset files alongside the HTML
+  - **Do NOT** create symlinks to `assets/`
+  - Only use external `<link>` / `<script src>` if the user explicitly says "用外联相对路径" or similar
+  - When user switches themes, templates, or adds animations, re-read the source files and update
+    the inline `<style>` and `<script>` contents — never mix inline and external
 - **Always start from a template.** Don't author slides from scratch — copy the
   closest layout from `templates/single-page/` first, then replace content.
 - **Use tokens, not literal colors.** Every color, radius, shadow should come
@@ -138,8 +153,9 @@ Only after those are clear, scaffold the deck and start writing.
   Only add it if the user explicitly asks for tags or page numbers in the footer.
   If added, you MUST visually verify that it does not overlap with any slide
   content on every page — test at different viewport sizes.
-- **Keyboard-first.** Always include `<script src="../assets/runtime.js"></script>`
-  so the deck supports ← → / T / A / F / P / S / O / hash deep-links.
+- **Keyboard-first.** Always inline `assets/runtime.js` content in a `<script>` tag
+  at the end of `<body>` so the deck supports ← → / T / A / F / P / S / O / hash deep-links.
+  Do NOT use `<script src="...">` — copy the runtime.js source into the HTML file.
 - **One `.slide` per logical page.** `runtime.js` makes `.slide.is-active`
   visible; all others are hidden.
 - **Supply notes.** Wrap speaker notes in `<div class="notes">…</div>` inside
