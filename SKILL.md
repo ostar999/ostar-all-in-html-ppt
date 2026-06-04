@@ -139,6 +139,18 @@ Only after those are clear, scaffold the deck and start writing.
   - Only use external `<link>` / `<script src>` if the user explicitly says "用外联相对路径" or similar
   - When user switches themes, templates, or adds animations, re-read the source files and update
     the inline `<style>` and `<script>` contents — never mix inline and external
+
+- **🛑 Split generation into multiple steps — NEVER write the full HTML in one shot.**
+  A complete deck with inlined CSS + JS can easily exceed 50KB. Writing it in a single
+  API call causes hangs and truncated output. Always use this 3-step workflow:
+  **Step 1 — Write skeleton.** Create the HTML file with `<style>` (all CSS inlined from
+  source files) + `<script>` (runtime.js inlined) + `<div class="deck"></div>` — but NO slides.
+  **Step 2 — Insert slides.** Use Edit to insert `<section class="slide">...</section>`
+  blocks between `<div class="deck">` and `</div>`. For decks with many slides, split
+  into batches of 5-8 slides per Edit to stay under token limits.
+  **Step 3 — Verify.** Read back the file, check slide count matches expected, test P-key export.
+  This 3-step approach keeps each API call under ~20KB, avoiding hangs while producing
+  the same single-file output.
 - **Always start from a template.** Don't author slides from scratch — copy the
   closest layout from `templates/single-page/` first, then replace content.
 - **Use tokens, not literal colors.** Every color, radius, shadow should come
