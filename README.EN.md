@@ -47,7 +47,7 @@ word speaker scripts on every slide.
 ## Install (one command)
 
 ```bash
-npx skills add https://github.com/lewislulu/html-ppt-skill
+npx skills add https://github.com/ostar999/ostar-all-in-html-ppt.git
 ```
 
 That registers the skill with your agent runtime. After install, any agent
@@ -183,7 +183,7 @@ A                               cycle a demo animation on current slide
 ## Project structure
 
 ```
-html-ppt-skill/
+ostar-all-in-html-ppt/
 ├── SKILL.md                      agent-facing dispatcher
 ├── README.md                     this file
 ├── references/                   detailed catalogs
