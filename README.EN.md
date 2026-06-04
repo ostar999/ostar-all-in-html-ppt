@@ -228,7 +228,9 @@ ostar-all-in-html-ppt/
 │   ├── new-deck.sh               scaffold
 │   ├── render.sh                 headless Chrome → PNG
 │   └── verify-output/            56 self-test screenshots
-└── examples/demo-deck/           complete working deck
+├── examples/
+│   ├── demo-deck/                  complete working deck
+│   └── export-reference/           P-key export reference template
 ```
 
 ## Philosophy
@@ -238,8 +240,7 @@ ostar-all-in-html-ppt/
   the whole deck reflows tastefully.
 - **Iframe isolation for previews.** Theme / layout / full-deck showcases all
   use `<iframe>` per slide so each preview is a real, independent render.
-- **Zero build.** Pure static HTML/CSS/JS. CDN only for webfonts, highlight.js
-  and chart.js (optional).
+- **Zero build.** Pure static HTML/CSS/JS. Webfonts via Google Fonts CDN, SVG export loads JSZip CDN on demand.
 - **Senior-designer defaults.** Opinionated type scale, spacing rhythm,
   gradients and card treatments — no "Corporate PowerPoint 2006" vibes.
 - **First-class Chinese + English support.** Noto Sans SC / Noto Serif SC pre-imported.
