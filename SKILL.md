@@ -189,6 +189,45 @@ Only after those are clear, scaffold the deck and start writing.
   attributes (e.g., `<section class="slide center">`) won't match
   `<section class="slide"`. Always grep for leftovers after `replace_all`.
 
+### Runtime chrome CSS (CRITICAL — when NOT loading `base.css`)
+
+If you choose to put all CSS inline in a `<style>` tag (instead of linking
+`assets/base.css`), you MUST also include CSS for the **runtime-created chrome
+elements**. `runtime.js` creates these DOM elements, but they have no built-in
+styles — they rely entirely on `base.css`:
+
+- **`.overview` / `.overview.open` / `.overview .thumb`** — O 键幻灯片总览网格。
+  缺失 = 按 O 键后只看到透明遮罩，看不到任何缩略图。
+- **`.notes-overlay` / `.notes-overlay.open`** — N 键演讲备注底部抽屉。
+  缺失 = 按 N 键后抽屉不显示。
+
+**Why this happens:** `runtime.js` dynamically creates `<div class="overview">`
+and appends it to `<body>`, then toggles `.open` to show it. If no CSS rule
+targets `.overview.open`, the element stays `display:none` (or invisible with
+no layout). The user presses O and nothing happens — but the DOM is correct.
+
+**How to fix:** Copy the `.overview` and `.notes-overlay` CSS blocks from
+`assets/base.css` into your inline `<style>`. The minimal set:
+
+```css
+.overview{position:fixed;inset:0;background:rgba(10,12,18,.92);backdrop-filter:blur(12px);
+  z-index:50;display:none;overflow-y:auto;padding:24px}
+.overview.open{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-content:start}
+.overview .thumb{position:relative;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s;aspect-ratio:16/9}
+.overview .thumb:hover{transform:scale(1.04)}
+.notes-overlay{position:fixed;bottom:0;left:0;right:0;max-height:40vh;
+  background:rgba(10,12,18,.96);border-top:1px solid var(--border);z-index:50;
+  overflow-y:auto;padding:24px 32px;font-size:16px;line-height:1.8;color:var(--text-1);display:none}
+.notes-overlay.open{display:block}
+```
+
+**Checklist before shipping an inline-CSS deck:**
+- [ ] O 键 → 总览网格正常显示
+- [ ] N 键 → 笔记抽屉正常显示
+- [ ] P 键 → 导出对话框正常显示
+- [ ] S 键 → 演讲者窗口正常弹出
+
 ## Writing guide
 
 See [references/authoring-guide.md](references/authoring-guide.md) for a
