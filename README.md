@@ -6,7 +6,7 @@
 > 提词器 + 计时器），以及**内置 PDF/SVG 一键导出**。纯静态 HTML/CSS/JS，
 > 无需构建。
 
-🚀 基于 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) Fork，新增 P 键 PDF/SVG 一键导出功能。
+🚀 基于 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) Fork 改进优化，感谢作者 lewis 做出的杰出贡献。新增 P 键 PDF/SVG 一键导出功能等功能。
 **English docs:** [README.EN.md](README.EN.md)
 
 ![html-ppt 封面 · 实时预览](docs/readme/hero.gif)

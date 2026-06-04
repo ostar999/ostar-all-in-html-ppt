@@ -7,7 +7,7 @@
 > PDF/SVG export** with thumbnail picker — all pure static HTML/CSS/JS,
 > no build step.
 
-🚀 Forked from [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) with built-in P-key PDF/SVG export.
+🚀 Forked from [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) with gratitude to author lewis. Added P-key PDF/SVG export and other improvements.
 **中文文档:** [README.md](README.md)
 
 ![html-ppt — cover with live previews](docs/readme/hero.gif)
