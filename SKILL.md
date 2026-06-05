@@ -149,10 +149,19 @@ Only after those are clear, scaffold the deck and start writing.
   blocks between `<div class="deck">` and `</div>`. If the deck has many slides,
   insert them in batches rather than all at once.
   **Step 3 — Verify.** Read back the file, check slide count matches expected. **🛑 MANDATORY:**
-  Test P-key export before declaring the deck "done". Export at least one slide as PNG and
-  as PDF (SVG), then open the downloaded files and verify: (a) all text/cards/images are
-  visible — nothing missing, (b) layout matches browser rendering, (c) colors and fonts are
-  correct. If anything is wrong, consult [references/export-pitfalls.md](references/export-pitfalls.md)
+  Test P-key export before declaring the deck "done". This is NOT optional — every single
+  deck must pass these checks:
+
+  1. Press P → export dialog opens with all slide thumbnails correctly styled.
+  2. **Click EVERY export button** — "全选", "取消全选", "导出 SVG (.zip)", "导出 PNG (.zip)",
+     "导出 PDF (SVG)", "导出 PDF (PNG)" — each must respond (download starts, print dialog opens,
+     or UI updates). If any button is silent/unresponsive, see Pitfall 12 in
+     [references/export-pitfalls.md](references/export-pitfalls.md).
+  3. Export at least one slide as PNG and as PDF (SVG), then open the downloaded files
+     and verify: (a) all text/cards/images are visible — nothing missing, (b) layout
+     matches browser rendering, (c) colors and fonts are correct.
+
+  If anything is wrong, consult [references/export-pitfalls.md](references/export-pitfalls.md)
   and fix BEFORE telling the user the deck is finished. Do NOT skip this step — export bugs
   are invisible in the browser and only surface when the user tries to export.
 - **Always start from a template.** Don't author slides from scratch — copy the
@@ -188,13 +197,15 @@ Only after those are clear, scaffold the deck and start writing.
 **🛑 MANDATORY: After generating ANY deck, you MUST verify export works.** Open
 the deck in a browser, press `P`, and confirm:
 1. The export dialog opens with all slide thumbnails visible and correctly styled.
-2. Click "导出 PDF (SVG)" or "导出 SVG (.zip)" — the download starts.
-3. Open the downloaded file — layout, colors, fonts, and terminal blocks match the browser rendering.
+2. **Click EVERY export button** (全选, 取消全选, 导出 SVG, 导出 PNG, 导出 PDF SVG, 导出 PDF PNG). Each button must respond — a silent/unresponsive button means `buildExportDialog()` has an orphaned `querySelector` (see Pitfall 12).
+3. Click "导出 PDF (SVG)" or "导出 SVG (.zip)" — the download starts.
+4. Open the downloaded file — layout, colors, fonts, and terminal blocks match the browser rendering.
 
 **📖 See [references/export-pitfalls.md](references/export-pitfalls.md) for a
 catalog of known export bugs, root causes, and verified fixes.** This is the
 accumulated knowledge from real-world deck debugging — read it before
-troubleshooting any P-key export issue.
+troubleshooting any P-key export issue. **Always check Pitfall 12 first when
+export buttons are unresponsive.**
 
 If ANY of the above fails, run the checklist below BEFORE telling the user the deck is done.
 The same checklist applies when the user switches themes, templates, or adds animations —

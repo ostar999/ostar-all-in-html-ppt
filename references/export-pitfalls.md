@@ -304,6 +304,71 @@ itself (or its children), never on ancestor elements like `body`/`html`/`.deck`.
 
 ---
 
+## Pitfall 12: Orphaned `querySelector` in `buildExportDialog()` breaks ALL export buttons
+
+**Symptom:** Export dialog opens (P key works, thumbnails render), but clicking ANY
+export button — "导出 PDF (SVG)", "导出 SVG (.zip)", "全选", etc. — has zero
+response. No download, no error alert, no progress bar, nothing. Console shows
+`TypeError: Cannot set properties of null (setting 'onclick')`.
+
+**Root cause:** When inlining `runtime.js`, the `buildExportDialog()` function
+registers click handlers via `querySelector()` for every button in the export
+dialog. If any one `querySelector` targets an ID that does NOT exist in the
+dialog's `innerHTML`, it returns `null`. The line `null.onclick = fn` throws a
+TypeError and **all subsequent handler registrations are skipped** — every button
+below the broken line is silently dead.
+
+This happens when the author customizes the export bar HTML (e.g., removing a
+"取消" cancel button, rearranging buttons into left/right groups) but forgets to
+sync the JS handler lines.
+
+**Example from this bug:**
+```javascript
+// Dialog HTML — NO element with id="exp-cancel" exists:
+exportDialog.innerHTML = '...<div class="export-bar">' +
+  '<div class="export-bar-left">...</div>' +
+  '<div class="export-bar-right">' +
+    '<button id="exp-svg-btn">...</button>' +
+    '<button id="exp-pdf-svg-btn">...</button>' +
+  '</div></div>';
+
+// JS handler registration — BROKEN at line 3:
+exportDialog.querySelector('.export-close').onclick = fn;     // ✅ OK
+exportDialog.querySelector('#exp-cancel').onclick = fn;       // ❌ null! → TypeError → ALL below skipped
+exportDialog.querySelector('#exp-sel-all').onclick = fn;      // ⏭️ never runs
+exportDialog.querySelector('#exp-svg-btn').onclick = fn;      // ⏭️ never runs
+exportDialog.querySelector('#exp-pdf-svg-btn').onclick = fn;  // ⏭️ never runs
+```
+
+**Fix:** The iron rule is: **every `querySelector` call in `buildExportDialog()`
+MUST have a matching element in the dialog's `innerHTML`.** Two ways to fix:
+
+1. **Remove the orphaned JS line** (if the button was intentionally removed):
+   ```javascript
+   // Delete this line:
+   // exportDialog.querySelector('#exp-cancel').onclick=function(){toggleExportDialog(false)};
+   ```
+
+2. **Add the missing element to the HTML** (if the button should exist):
+   ```javascript
+   '<button class="export-btn" id="exp-cancel">取消</button>' +
+   ```
+
+**Checklist for any changes to the export bar:**
+- [ ] Added a button to HTML? → Add matching `querySelector` + handler in JS.
+- [ ] Removed a button from HTML? → Remove matching `querySelector` line from JS.
+- [ ] Renamed a button's `id`? → Update BOTH the HTML attribute and the JS `querySelector`.
+
+**How to verify before shipping:**
+```bash
+# Extract all querySelector IDs from buildExportDialog and check against HTML
+grep -oP "querySelector\('[^']*'\)" index.html | sort > /tmp/js-ids.txt
+grep -oP 'id="[^"]*"' index.html | sort > /tmp/html-ids.txt
+diff /tmp/js-ids.txt /tmp/html-ids.txt
+```
+
+---
+
 ## Summary: When authoring a deck, always check
 
 | # | Check | Where |
@@ -319,3 +384,4 @@ itself (or its children), never on ancestor elements like `body`/`html`/`.deck`.
 | 9 | Card backgrounds visible without `backdrop-filter` | `.card` / `.callout` / glass components CSS |
 | 10 | `anim-stagger-list` removed in export clone | `slideToSVG()` + `slideToPNGBlob()` in runtime.js |
 | 11 | Decorative backgrounds on `.slide`, not just `body` | `.slide` CSS |
+| 12 | No orphaned `querySelector` in `buildExportDialog()` | `buildExportDialog()` in runtime.js — every `#id` in JS must exist in dialog HTML |
