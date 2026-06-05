@@ -149,8 +149,28 @@ Only after those are clear, scaffold the deck and start writing.
   blocks between `<div class="deck">` and `</div>`. If the deck has many slides,
   insert them in batches rather than all at once.
   **Step 3 — Verify.** Read back the file, check slide count matches expected. **🛑 MANDATORY:**
-  Test P-key export before declaring the deck "done". This is NOT optional — every single
-  deck must pass these checks:
+  Test keyboard functionality AND export before declaring the deck "done". This is NOT
+  optional — every single deck must pass these checks:
+
+  **3a. Keyboard check (EVERY key — run FIRST):**
+
+  | Key | Expected | Check |
+  |-----|----------|-------|
+  | `←` `→` | Navigate slides | ☐ |
+  | `Space` | Next slide | ☐ |
+  | `F` | Fullscreen toggle | ☐ |
+  | `T` | Theme changes **visibly** | ☐ |
+  | `O` | Overview grid opens | ☐ |
+  | `N` | Notes drawer opens | ☐ |
+  | `S` | Presenter window opens | ☐ |
+  | `P` | Export dialog opens | ☐ |
+  | `Esc` | Close all overlays | ☐ |
+
+  If **any** key is unresponsive, stop and fix BEFORE testing export.
+  See [references/inline-errors.md](references/inline-errors.md) for a complete
+  catalog of common keyboard/runtime bugs and verified fixes.
+
+  **3b. Export check (every button — click ALL of them):**
 
   1. Press P → export dialog opens with all slide thumbnails correctly styled.
   2. **Click EVERY export button** — "全选", "取消全选", "导出 SVG (.zip)", "导出 PNG (.zip)",
@@ -161,9 +181,11 @@ Only after those are clear, scaffold the deck and start writing.
      and verify: (a) all text/cards/images are visible — nothing missing, (b) layout
      matches browser rendering, (c) colors and fonts are correct.
 
-  If anything is wrong, consult [references/export-pitfalls.md](references/export-pitfalls.md)
-  and fix BEFORE telling the user the deck is finished. Do NOT skip this step — export bugs
-  are invisible in the browser and only surface when the user tries to export.
+  If anything is wrong, consult [references/inline-errors.md](references/inline-errors.md)
+  for keyboard/runtime bugs, or [references/export-pitfalls.md](references/export-pitfalls.md)
+  for export bugs. Fix BEFORE telling the user the deck is finished. Do NOT skip this
+  step — keyboard and export bugs are invisible in the browser preview and only surface
+  when the user actually tries to use the deck.
 - **Always start from a template.** Don't author slides from scratch — copy the
   closest layout from `templates/single-page/` first, then replace content.
 - **Use tokens, not literal colors.** Every color, radius, shadow should come
@@ -375,6 +397,8 @@ Chinese + English deck, and how to export.
 - [references/full-decks.md](references/full-decks.md) — all 15 full-deck templates.
 - [references/presenter-mode.md](references/presenter-mode.md) — **演讲者模式 + 逐字稿编写指南（技术分享/演讲必看）**.
 - [references/authoring-guide.md](references/authoring-guide.md) — full workflow.
+- [references/inline-errors.md](references/inline-errors.md) — **🛑 inline-HTML 键盘/运行时错误修复手册**，涵盖 T 键失效、JS 语法错误、主题变量冲突等常见 Bug 的根因和修复方法。**每次生成 deck 后必须按此清单自检。**
+- [references/export-pitfalls.md](references/export-pitfalls.md) — **P 键导出错误修复手册**，涵盖打印 CSS、SVG foreignObject、画布污染等 12 个已知导出 Bug。
 - [examples/export-reference/](examples/export-reference/index.html) — **P 键导出功能完整参考模板**，含导出对话 UI、SVG 生成、PDF 打印的完整实现。生成任何 deck 时以此为参考确保导出功能可正常工作。
 
 ## File structure
