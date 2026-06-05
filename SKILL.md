@@ -148,7 +148,13 @@ Only after those are clear, scaffold the deck and start writing.
   **Step 2 — Insert slides.** Use Edit to insert `<section class="slide">...</section>`
   blocks between `<div class="deck">` and `</div>`. If the deck has many slides,
   insert them in batches rather than all at once.
-  **Step 3 — Verify.** Read back the file, check slide count matches expected, test P-key export.
+  **Step 3 — Verify.** Read back the file, check slide count matches expected. **🛑 MANDATORY:**
+  Test P-key export before declaring the deck "done". Export at least one slide as PNG and
+  as PDF (SVG), then open the downloaded files and verify: (a) all text/cards/images are
+  visible — nothing missing, (b) layout matches browser rendering, (c) colors and fonts are
+  correct. If anything is wrong, consult [references/export-pitfalls.md](references/export-pitfalls.md)
+  and fix BEFORE telling the user the deck is finished. Do NOT skip this step — export bugs
+  are invisible in the browser and only surface when the user tries to export.
 - **Always start from a template.** Don't author slides from scratch — copy the
   closest layout from `templates/single-page/` first, then replace content.
 - **Use tokens, not literal colors.** Every color, radius, shadow should come
@@ -210,6 +216,10 @@ the inline `<style>` must stay in sync with every change.
 12. ☐ **`backdrop-filter` stripped** in `slideToSVG()` and `slideToPNGBlob()` — SVG foreignObject does not support it, causing blocky artifacts.
 13. ☐ **`@media print` resets `.gradient-text`** to solid `var(--accent)` — `background-clip:text` fails in print, leaving visible gradient rectangles with hard edges.
 14. ☐ **SVG PDF export filename** — `exportToPDFSVG()` must set `document.title` to include `_svg` suffix before `window.print()`.
+
+	15. ☐ **Card/callout backgrounds visible without `backdrop-filter`** — translucent backgrounds (`.06` alpha) become invisible after blur strip. Use `.72+` alpha fallback (see Pitfall 9).
+	16. ☐ **`anim-stagger-list` removed in export clones** — `slideToSVG()` and `slideToPNGBlob()` must remove `anim-stagger-list` class, or children stay at `opacity:0` (see Pitfall 10).
+	17. ☐ **Decorative backgrounds duplicated on `.slide`** — body-only radial gradients / light spots will not appear in SVG export. Copy them to `.slide` itself (see Pitfall 11).
 
 ---
 

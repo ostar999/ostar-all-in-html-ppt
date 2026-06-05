@@ -436,6 +436,7 @@
       clone.querySelectorAll('[data-anim],[data-fx]').forEach(function(el){el.removeAttribute('data-anim');el.removeAttribute('data-fx')});
       clone.classList.add('is-active');
       clone.querySelectorAll('.anim-fade-up,.anim-fade-left,.anim-fade-right').forEach(function(el){el.classList.remove('anim-fade-up','anim-fade-left','anim-fade-right')});
+      clone.querySelectorAll('.anim-stagger-list').forEach(function(el){el.classList.remove('anim-stagger-list')});
       var css=_getAllCSS_sync();
       var rootBlock=_buildRootBlock();
       css=css.replace(/backdrop-filter:[^;]+;/gi,'').replace(/-webkit-backdrop-filter:[^;]+;/gi,'');
@@ -599,6 +600,7 @@
         clone.querySelectorAll('[data-anim],[data-fx]').forEach(function(el){el.removeAttribute('data-anim');el.removeAttribute('data-fx')});
         clone.classList.add('is-active');
         clone.querySelectorAll('.anim-fade-up,.anim-fade-left,.anim-fade-right').forEach(function(el){el.classList.remove('anim-fade-up','anim-fade-left','anim-fade-right')});
+        clone.querySelectorAll('.anim-stagger-list').forEach(function(el){el.classList.remove('anim-stagger-list')});
         clone.querySelectorAll('.notes,aside.notes,.speaker-notes').forEach(function(el){el.remove()});
 
         var css=_getAllCSS_sync();

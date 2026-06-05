@@ -196,6 +196,114 @@ contexts.
 
 ---
 
+## Pitfall 9: Translucent card backgrounds become invisible after `backdrop-filter` strip
+
+**Symptom:** PNG/SVG export shows empty cards — no visible background, text floating
+on dark slide background. Glassmorphism and other translucent themes are most affected.
+
+**Root cause:** `slideToSVG()` and `slideToPNGBlob()` strip `backdrop-filter` (see
+Pitfall 3), but translucent card backgrounds like `background:rgba(255,255,255,.06)`
+(only 6% opacity) rely on the blur effect to be visible. Without blur, the card
+background is essentially transparent, making card content unreadable against the
+slide background.
+
+**Affected themes:** `glassmorphism`, any theme using translucent card backgrounds
+with `backdrop-filter`.
+
+**Fix:** Use a semi-opaque fallback background color that works both WITH blur
+(in browser, looks like frosted glass) and WITHOUT blur (in export, still visible).
+```css
+/* ❌ 6% opacity — invisible without blur */
+.card{backdrop-filter:blur(28px);background:rgba(255,255,255,.06)}
+
+/* ✅ ~72% opacity — visible even without blur, still looks good with blur */
+.card{backdrop-filter:blur(28px);background:rgba(15,21,55,.72)}
+```
+
+**Design principle:** When using glassmorphism/translucent effects, always pick a
+background alpha that works WITHOUT `backdrop-filter` as a fallback. Test by
+temporarily disabling `backdrop-filter` in DevTools and verifying card readability.
+
+**Applies to:** All components using translucent backgrounds + backdrop-filter:
+`.card`, `.callout`, `.concept-box`, `.exercise`, `.code-block`, custom glass panels.
+
+---
+
+## Pitfall 10: `anim-stagger-list` class NOT cleaned up in export clones
+
+**Symptom:** Slides using `anim-stagger-list` have ALL child elements invisible
+(`opacity:0`) in PNG/SVG export. Text, cards, code blocks — everything missing.
+Browser rendering is fine.
+
+**Root cause:** `slideToSVG()` and `slideToPNGBlob()` had a hardcoded list of
+animation classes to remove from cloned slides:
+```javascript
+clone.querySelectorAll('.anim-fade-up,.anim-fade-left,.anim-fade-right')
+  .forEach(function(el){el.classList.remove('anim-fade-up','anim-fade-left','anim-fade-right')});
+```
+`anim-stagger-list` was NOT in this list. The CSS rule `.anim-stagger-list > *`
+sets `opacity:0; animation: kf-rise ... both`. In the exported SVG context,
+animations don't auto-play, so children stay at `opacity:0` permanently.
+
+**Why it's especially bad:** Stagger-list is one of the most commonly used animation
+patterns (grid cards, feature lists, step lists). A single missing cleanup affects
+EVERY stagger-list on EVERY exported slide.
+
+**Fix in `runtime.js` `slideToSVG()` and `slideToPNGBlob()`:**
+```javascript
+// Add this line right after the existing anim-* cleanup:
+clone.querySelectorAll('.anim-stagger-list').forEach(function(el){
+  el.classList.remove('anim-stagger-list')
+});
+```
+
+**Checklist:** Whenever a new animation class is added to `animations.css`, it MUST
+also be added to the cleanup list in both `slideToSVG()` and `slideToPNGBlob()`.
+Otherwise all elements using that animation will be invisible in export.
+
+---
+
+## Pitfall 11: Slide background missing body's decorative gradients
+
+**Symptom:** Exported PNG/SVG has flat dark background, missing the colorful light
+spots / radial gradients visible in browser. Slides look dull and lifeless.
+
+**Root cause:** Themes like `glassmorphism` define complex decorative backgrounds
+on `body`:
+```css
+body{background:
+  radial-gradient(60% 60% at 20% 20%, rgba(125,211,252,.3), transparent 60%),
+  radial-gradient(50% 50% at 80% 30%, rgba(192,132,252,.28), transparent 60%),
+  radial-gradient(60% 60% at 60% 90%, rgba(240,171,252,.25), transparent 60%),
+  #0b1024}
+```
+But `.slide` only has `background:var(--bg)` which resolves to the flat base color
+(`#0b1024`). In the browser, `.slide` inherits the body background visually (because
+`.slide` is inside `body` and the body background shows through). But in SVG
+`foreignObject`, there is no `<body>` — the slide is rendered standalone with only
+`background:var(--bg)`.
+
+**Fix:** Duplicate the body's decorative background onto `.slide`:
+```css
+.slide{
+  background:
+    radial-gradient(60% 60% at 20% 20%, rgba(125,211,252,.3), transparent 60%),
+    radial-gradient(50% 50% at 80% 30%, rgba(192,132,252,.28), transparent 60%),
+    radial-gradient(60% 60% at 60% 90%, rgba(240,171,252,.25), transparent 60%),
+    #0b1024;
+  color:var(--text-1);
+}
+```
+
+**Applies to ANY theme that puts decorative backgrounds on `body` or `html` rather
+than on `.slide` directly.** Common affected themes: `glassmorphism`, `aurora`,
+`vaporwave`, `cyberpunk-neon`.
+
+**Design rule:** Any visual effect that should appear in export MUST be on `.slide`
+itself (or its children), never on ancestor elements like `body`/`html`/`.deck`.
+
+---
+
 ## Summary: When authoring a deck, always check
 
 | # | Check | Where |
@@ -208,3 +316,6 @@ contexts.
 | 6 | `._pdf_show_` doesn't set `display` | `exportToPDFSVG()` in runtime.js |
 | 7 | SVG PDF has `_svg` suffix | `exportToPDFSVG()` in runtime.js |
 | 8 | Sidebar uses `--border-strong` | Template/theme CSS |
+| 9 | Card backgrounds visible without `backdrop-filter` | `.card` / `.callout` / glass components CSS |
+| 10 | `anim-stagger-list` removed in export clone | `slideToSVG()` + `slideToPNGBlob()` in runtime.js |
+| 11 | Decorative backgrounds on `.slide`, not just `body` | `.slide` CSS |
