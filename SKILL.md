@@ -122,6 +122,66 @@ Only after those are clear, scaffold the deck and start writing.
    ./scripts/render.sh examples/my-talk/index.html 12      # 12 slides
    ```
 
+## 🛑 Mandatory Self-Check（强制自检 — 每次操作必执行）
+
+**This section applies to EVERY action:** generating a new deck, modifying an
+existing deck, switching themes/templates, adding animations, or making any
+change to a `.html` file.
+
+Before telling the user the work is done, you MUST run this 3-step self-check:
+
+### Step 0: Inline audit（内联审查）
+
+- [ ] Are ALL CSS rules in `<style>` tags (not external `<link>`)?
+- [ ] Is ALL JavaScript in `<script>` tags (not external `<script src>`)?
+- [ ] Are theme tokens present as `:root[data-theme="xxx"]` blocks?
+- [ ] Are `.overview` / `.notes-overlay` / `.export-overlay` CSS blocks present?
+- [ ] Is `applyTheme()` modified for inline mode (no `<link>` creation)?
+
+If any resource is still externally referenced, re-read the source file and
+inline it NOW. Do not ship a deck with external dependencies.
+
+### Step 1: Keyboard functionality（键盘功能）
+
+| Key | Expected | Check |
+|-----|----------|-------|
+| `←` `→` `Space` | Navigate slides | ☐ |
+| `F` | Fullscreen toggle | ☐ |
+| `T` | Theme changes **visibly** — check all themes in `data-themes` | ☐ |
+| `O` | Overview grid opens with thumbnails | ☐ |
+| `N` | Notes drawer opens | ☐ |
+| `S` | Presenter window opens (check 4 magnetic cards) | ☐ |
+| `P` | Export dialog opens with thumbnails | ☐ |
+| `A` | Demo animation cycles on current slide | ☐ |
+| `Esc` | Close all overlays | ☐ |
+
+If **any** key is unresponsive, stop and fix BEFORE proceeding.
+See [references/inline-errors.md](references/inline-errors.md).
+
+### Step 2: Export verification（导出验证）
+
+1. Press P → export dialog opens, all thumbnails correctly styled.
+2. Click **EVERY** export button — each must respond:
+   - "全选" / "取消全选" — thumbnails toggle
+   - "导出 SVG (.zip)" — download starts
+   - "导出 PNG (.zip)" — download starts
+   - "导出 PDF (SVG)" — print dialog opens
+   - "导出 PDF (PNG)" — print dialog opens
+3. Open at least one downloaded file → verify: text/images visible, layout correct, colors match browser.
+
+If any button is silent, see [references/export-pitfalls.md](references/export-pitfalls.md) (check Pitfall 12 first).
+
+### Step 3: Cross-browser sanity（跨环境检查）
+
+- [ ] Deck opens correctly via `file://` protocol (no CORS errors in console)
+- [ ] No 404 errors in browser console
+- [ ] Slide count matches expected
+- [ ] No overlapping UI elements (footer vs slide content)
+
+**🛑 Do NOT tell the user the work is complete until ALL checkboxes above are
+confirmed.** Bugs invisible in preview (keyboard/export failures) are the #1
+cause of user-reported issues.
+
 ## Authoring rules (important)
 
 - **🛑 DEFAULT: Single self-contained HTML file.** Every generated deck MUST be a
