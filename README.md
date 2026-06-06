@@ -18,9 +18,10 @@ npx skills add https://github.com/ostar999/ostar-all-in-html-ppt.git
 
 - 本项目，基于 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) Fork 改进优化，感谢仓库作者 [lewis](https://github.com/lewislulu) 和[Gao Mingfei](https://github.com/g199209)做出的杰出贡献。
 
-- 由本项目作者**作者：** ostar999 &lt;ota1754@qq.com&gt; 重点新增以下功能“
-  - 新增 P 键 PDF/SVG/PNG 一键导出功能等功能。
-  - 新增总览全部主题、页面布局、动效、Deck模板的html，推荐查看 showcase.html 。
+- 由本项目**作者：** ostar999 &lt;ota1754@qq.com&gt; 重点新增以下功能：
+  - 新增 P 键 PDF/SVG/PNG 一键导出功能。
+  - 新增总览全部主题、页面布局、动效、Deck 模板的 HTML 展示页（`showcase.html`）。
+  - 新增**单文件自包含**：生成时自动内联所有 CSS/JS，产出独立 `.html` 文件，可复制到任意设备直接打开演讲。
 
 ![html-ppt 封面 · 实时预览](docs/readme/hero-v2.png)
 

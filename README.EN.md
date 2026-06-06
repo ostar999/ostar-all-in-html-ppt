@@ -20,6 +20,7 @@ npx skills add https://github.com/ostar999/ostar-all-in-html-ppt.git
 - New features added by **ostar999** &lt;ota1754@qq.com&gt;:
   - P-key one-click PDF/SVG/PNG export.
   - Visual showcase HTML page (`showcase.html`) for browsing all themes, layouts, animations, and templates.
+  - **Self-contained single file**: auto-inlines all CSS/JS during generation, producing a standalone `.html` you can copy to any device and present directly.
 
 ![html-ppt — cover with live previews](docs/readme/hero-v2.png)
 
