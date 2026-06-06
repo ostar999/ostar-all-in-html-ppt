@@ -286,14 +286,130 @@ Open DevTools Console (F12) after loading the page:
 
 ---
 
+---
+
+## Pitfall 5: T key broken in fully-inline decks — `applyTheme()` loads non-existent external CSS
+
+**Symptom:** Pressing T key has no visual effect. Theme does not change. This
+happens in **fully self-contained single-file decks** where ALL CSS is in a
+`<style>` tag and there are no external asset files.
+
+**Root cause (two cascading mistakes):**
+
+The `applyTheme()` function in `runtime.js` was originally designed for
+**external mode** (multi-file projects with `assets/themes/*.css`). When a
+deck is fully inline, this function fails:
+
+```javascript
+// ❌ Original applyTheme() — assumes external CSS files always exist
+function applyTheme(name) {
+  let link = document.getElementById('theme-link');
+  if (!link) {
+    link = document.createElement('link');  // Creates <link> pointing to...
+    link.rel = 'stylesheet';
+    link.id = 'theme-link';
+    document.head.appendChild(link);
+  }
+  link.href = themeBase + name + '.css';    // ...non-existent file → 404
+  root.setAttribute('data-theme', name);
+}
+```
+
+**Mistake 1 (silent 404):** The deck has `<html data-themes="...">` so T key
+is bound. But `applyTheme()` creates a `<link href="assets/themes/xxx.css">`
+that points to a non-existent file. The browser gets a 404 — no error visible,
+no visual change. T key appears "dead."
+
+**Mistake 2 (making it worse):** The developer removes `data-themes` from
+`<html>` to "fix" the issue. This makes `themes` array empty, and
+`cycleTheme()` returns immediately (`if(!themes.length)return;`). Now T key
+is truly a no-op — even worse than before, because there's not even a 404
+to hint at the problem.
+
+**Correct fix (two parts):**
+
+**Part A — Fix `runtime.js` `applyTheme()` to support both modes:**
+
+```javascript
+// ✅ Fixed — works for BOTH external and inline decks
+function applyTheme(name) {
+  // External mode: update <link> href only if theme-link element exists
+  let link = document.getElementById('theme-link');
+  if (link) {
+    link.href = themeBase + name + '.css';
+  }
+  // Always set data-theme attribute — inline decks use :root[data-theme="xxx"]
+  root.setAttribute('data-theme', name);
+  const ind = document.querySelector('.theme-indicator');
+  if (ind) ind.textContent = name;
+}
+```
+
+Key changes:
+- No longer **creates** `<link>` if it doesn't exist — only **updates** existing one
+- Always sets `data-theme` attribute — this is what inline CSS selectors respond to
+
+**Part B — Use `:root[data-theme="xxx"]` CSS selectors for inline themes:**
+
+```css
+/* Default theme (also matches when data-theme is unset) */
+:root, :root[data-theme="academic-paper"] {
+  --bg: #fdfcf8;
+  --accent: #1a3a7a;
+  /* ... all theme tokens */
+}
+
+/* Additional themes — higher specificity overrides :root */
+:root[data-theme="minimal-white"] {
+  --bg: #ffffff;
+  --accent: #2563eb;
+  /* ... all theme tokens */
+}
+
+:root[data-theme="corporate-clean"] {
+  --bg: #f8fafc;
+  --accent: #1e40af;
+  /* ... all theme tokens */
+}
+```
+
+This ensures:
+- `<html>` has `data-themes="academic-paper,minimal-white,corporate-clean"` and `data-theme="academic-paper"`
+- Pressing T → `cycleTheme()` → `applyTheme(name)` → `root.setAttribute('data-theme', name)` → CSS `:root[data-theme="xxx"]` matches → visible theme change
+- No external files needed, no 404s, no silent failures
+
+**Why it's especially bad (diagnosis difficulty):**
+
+This is a **double-silent failure** pattern:
+1. First attempt: T key "doesn't work" but there ARE 404 network errors — easy to miss if DevTools isn't open
+2. Second attempt (remove `data-themes`): T key becomes intentional no-op — even harder to diagnose because everything is "working as designed"
+3. The skill's DEFAULT rule is "single self-contained HTML file," but `runtime.js` was designed for external mode — a fundamental design conflict that every inline deck hits
+
+**How to verify before shipping (inline decks):**
+1. Check that `<html>` HAS `data-themes` and `data-theme` attributes
+2. Check that inline `<style>` contains `:root[data-theme="xxx"]` blocks for EACH theme in `data-themes`
+3. Check that inlined `applyTheme()` does NOT create `<link>` elements (only updates existing)
+4. Press T → colors/fonts MUST visibly change
+5. Press T multiple times → cycles through all themes
+
+**Checklist for inline theme support:**
+- [ ] `<html data-themes="...">` lists all theme names
+- [ ] `<html data-theme="...">` sets initial theme
+- [ ] CSS has `:root[data-theme="xxx"]` block for each theme with ALL token variables
+- [ ] Inlined `applyTheme()` does NOT call `document.createElement('link')`
+- [ ] T key tested → visible theme change on each press
+
+---
+
 ## Summary: When generating a deck, always check
 
 | # | Check | Where |
 |---|-------|-------|
 | 1 | T key works (all 5 components present) | Inline `<script>` |
 | 2 | No `<\/script>` in JS strings | Inline `<script>` presenter HTML |
-| 3 | `:root` color vars NOT in inline `<style>` | Inline `<style>` |
-| 4 | `<html>` has theme attributes | `<html>` tag |
-| 5 | `<link id="theme-link">` exists before `<style>` | `<head>` |
-| 6 | All keyboard shortcuts functional | Full deck test |
-| 7 | Export buttons all respond | P-key dialog test |
+| 3 | `:root` color vars NOT in inline `<style>` (external mode) OR `:root[data-theme="xxx"]` blocks present (inline mode) | Inline `<style>` |
+| 4 | `<html>` has `data-themes` and `data-theme` attributes | `<html>` tag |
+| 5 | `<link id="theme-link">` exists before `<style>` (external mode) OR no `<link>` + inline `:root[data-theme="xxx"]` (inline mode) | `<head>` |
+| 6 | Inlined `applyTheme()` does NOT create `<link>` elements — only updates existing | Inline `<script>` |
+| 7 | All keyboard shortcuts functional | Full deck test |
+| 8 | Export buttons all respond | P-key dialog test |

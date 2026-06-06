@@ -166,6 +166,11 @@ Only after those are clear, scaffold the deck and start writing.
   | `P` | Export dialog opens | ☐ |
   | `Esc` | Close all overlays | ☐ |
 
+  **🛑 T-key special attention:** This is the #1 silent-failure key for inline decks.
+  If T does nothing: (a) check `data-themes` attr exists on `<html>`, (b) check inlined
+  `applyTheme()` does NOT create `<link>` elements, (c) check CSS has
+  `:root[data-theme="xxx"]` blocks. See Pitfall 5 in inline-errors.md.
+
   If **any** key is unresponsive, stop and fix BEFORE testing export.
   See [references/inline-errors.md](references/inline-errors.md) for a complete
   catalog of common keyboard/runtime bugs and verified fixes.
@@ -203,6 +208,46 @@ Only after those are clear, scaffold the deck and start writing.
 - **Keyboard-first.** Always inline `assets/runtime.js` content in a `<script>` tag
   at the end of `<body>` so the deck supports ← → / T / A / F / P / S / O / hash deep-links.
   Do NOT use `<script src="...">` — copy the runtime.js source into the HTML file.
+- **🛑 Inline theme support (T key).** Since the default is a single self-contained
+  HTML file with NO external assets, the inlined `applyTheme()` function MUST be
+  modified to work without external CSS files. The original `runtime.js`
+  `applyTheme()` creates `<link>` elements pointing to external `.css` files —
+  this will 404 in an inline deck.
+
+  **Required `applyTheme()` modification (apply when inlining runtime.js):**
+  ```js
+  // ❌ Original — creates <link> to non-existent external files
+  function applyTheme(name){
+    let link=document.getElementById('theme-link');
+    if(!link){link=document.createElement('link');...}  // ← REMOVE this
+    link.href=themeBase+name+'.css';                      // ← 404 in inline mode
+    root.setAttribute('data-theme',name);
+  }
+
+  // ✅ Fixed — works for inline decks (also backward-compatible with external mode)
+  function applyTheme(name){
+    let link=document.getElementById('theme-link');
+    if(link){link.href=themeBase+name+'.css';}  // only update if exists
+    root.setAttribute('data-theme',name);         // always set (inline CSS responds to this)
+  }
+  ```
+
+  **Required CSS pattern for inline themes:**
+  ```css
+  /* One :root[data-theme="xxx"] block per theme — ALL token variables must be present */
+  :root, :root[data-theme="academic-paper"]{ --bg:#fdfcf8; --accent:#1a3a7a; /* ...all tokens */ }
+  :root[data-theme="minimal-white"]{ --bg:#ffffff; --accent:#2563eb; /* ...all tokens */ }
+  :root[data-theme="corporate-clean"]{ --bg:#f8fafc; --accent:#1e40af; /* ...all tokens */ }
+  ```
+
+  **Required HTML attributes:**
+  ```html
+  <html data-themes="academic-paper,minimal-white,corporate-clean" data-theme="academic-paper">
+  ```
+
+  **🛑 After generating EVERY deck, press T to verify:** colors/fonts must visibly
+  change on each press. If not, see [references/inline-errors.md](references/inline-errors.md) Pitfall 5.
+  Also test ALL other keys (← → Space F O N S P Esc) — see keyboard checklist below.
 - **One `.slide` per logical page.** `runtime.js` makes `.slide.is-active`
   visible; all others are hidden.
 - **Supply notes.** Wrap speaker notes in `<div class="notes">…</div>` inside

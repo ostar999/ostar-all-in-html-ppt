@@ -1279,14 +1279,12 @@
     }
 
     function applyTheme(name) {
+      // External mode: update <link> href if theme-link element exists
       let link = document.getElementById('theme-link');
-      if (!link) {
-        link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.id = 'theme-link';
-        document.head.appendChild(link);
+      if (link) {
+        link.href = themeBase + name + '.css';
       }
-      link.href = themeBase + name + '.css';
+      // Always set data-theme attribute — inline decks use :root[data-theme="xxx"] CSS selectors
       root.setAttribute('data-theme', name);
       const ind = document.querySelector('.theme-indicator');
       if (ind) ind.textContent = name;
