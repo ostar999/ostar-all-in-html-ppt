@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../../assets/fonts.css">
+<link rel="stylesheet" href="../../assets/base.css">
+<link rel="stylesheet" href="../../assets/themes/tokyo-night.css">
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:var(--bg,#1a1b26);font-family:var(--font-sans)}
+  .fx-stage{width:100%;height:100%;position:relative}
+  .fx-label{position:absolute;top:10px;left:12px;z-index:10;font-family:var(--font-mono,monospace);font-size:10px;color:var(--text-3,#888);background:rgba(0,0,0,.5);padding:2px 8px;border-radius:99px}
+</style>
+</head>
+<body>
+<div class="fx-stage" id="fx-target"><span class="fx-label" id="fx-name-label">loading...</span></div>
+<script src="../../assets/animations/fx/_util.js"></script>
+<script src="../../assets/animations/fx/particle-burst.js"></script>
+<script src="../../assets/animations/fx/confetti-cannon.js"></script>
+<script src="../../assets/animations/fx/firework.js"></script>
+<script src="../../assets/animations/fx/starfield.js"></script>
+<script src="../../assets/animations/fx/matrix-rain.js"></script>
+<script src="../../assets/animations/fx/knowledge-graph.js"></script>
+<script src="../../assets/animations/fx/neural-net.js"></script>
+<script src="../../assets/animations/fx/constellation.js"></script>
+<script src="../../assets/animations/fx/orbit-ring.js"></script>
+<script src="../../assets/animations/fx/galaxy-swirl.js"></script>
+<script src="../../assets/animations/fx/word-cascade.js"></script>
+<script src="../../assets/animations/fx/letter-explode.js"></script>
+<script src="../../assets/animations/fx/chain-react.js"></script>
+<script src="../../assets/animations/fx/magnetic-field.js"></script>
+<script src="../../assets/animations/fx/data-stream.js"></script>
+<script src="../../assets/animations/fx/gradient-blob.js"></script>
+<script src="../../assets/animations/fx/sparkle-trail.js"></script>
+<script src="../../assets/animations/fx/shockwave.js"></script>
+<script src="../../assets/animations/fx/typewriter-multi.js"></script>
+<script src="../../assets/animations/fx/counter-explosion.js"></script>
+<script>
+(function(){
+  var fx = new URLSearchParams(location.search).get('fx') || 'particle-burst';
+  document.getElementById('fx-name-label').textContent = fx;
+  var el = document.getElementById('fx-target');
+  if (window.HPX && typeof window.HPX[fx] === 'function') {
+    try {
+      var handle = window.HPX[fx](el, {});
+      window.__hpxActive = window.__hpxActive || new Map();
+      window.__hpxActive.set(el, handle || {stop:function(){}});
+    } catch(e) { console.warn('FX init error:', fx, e); }
+  }
+})();
+</script>
+</body>
+</html>

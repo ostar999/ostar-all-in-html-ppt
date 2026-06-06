@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ostar-all-in-html-ppt — 可视化展示（懒加载优化版）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="docs/showcase/showcase.css">
+<style>
+  .lazy-ph{position:absolute;inset:0;background:#f0f2f5;
+    display:flex;align-items:center;justify-content:center;
+    color:#bbb;font-size:11px;z-index:1;pointer-events:none}
+  iframe[data-src]{background:#f0f2f5}
+</style>
+</head>
+<body>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">🎬</div>
+    <div class="sidebar-title">ostar-all-in-html-ppt</div>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="#hero" class="active">概览</a></li>
+    <li><a href="#usage">💬 使用方法</a></li>
+    <li><a href="#self-contained">📄 单文件自包含</a></li>
+    <li><a href="#structure">📂 项目结构</a></li>
+    <li><a href="#themes">🎨 36 套主题</a></li>
+    <li><a href="#layouts">📐 31 种布局</a></li>
+    <li><a href="#animations">✨ 47 个动效</a></li>
+    <li><a href="#templates">📦 15 套模板</a></li>
+    <li><a href="#features">⚡ 功能特性</a></li>
+  </ul>
+</nav>
+
+<main class="main">
+
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero-badge">任何支持 Agent Skill 的 agent（Claude Code / Codex / Cursor / OpenClaw 等）都能用这套skill做 PPT风格的HTML</div>
+  <h1 class="hero-title">ostar-all-in-html-ppt</h1>
+  <p class="hero-lede">全能 HTML PPT 工作室 — 纯静态网页制作专业演示文稿。<br>36 主题 · 31 布局 · 47 动效 · 演讲者模式 · 一键导出 PDF/SVG/PNG</p>
+  <div class="hero-install-wrap">
+    <div class="hero-install">
+      <code id="install-cmd">npx skills add https://github.com/ostar999/ostar-all-in-html-ppt.git</code>
+    </div>
+    <button class="btn-copy" onclick="copyInstall()" title="复制安装命令">
+      <span class="copy-icon">📋</span><span class="copy-text">复制</span>
+    </button>
+  </div>
+  <p class="hero-notice">⚠️ 本页面需要加载大量主题预览、布局 iframe 和动画特效，如遇卡顿请耐心等待或刷新页面。</p>
+</section>
+
+<!-- Usage Guide -->
+<section class="section" id="usage">
+  <h2 class="section-title">💬 使用方法：如何与 AI 对话生成 PPT</h2>
+
+  <div class="concept-card">
+    <div class="concept-icon">💬</div>
+    <div class="concept-body">
+      <h4>你不需要写代码——你只需要用自然语言描述你的需求</h4>
+      <p>这个 Skill 安装后，AI 会自动识别你的 PPT 需求。<strong>关键是你怎么描述，决定了 AI 怎么帮你做。</strong>好的对话技巧能让 AI 一次就给你满意的结果，而不是反复修改。</p>
+    </div>
+  </div>
+
+  <h3 class="category-title">触发关键词</h3>
+  <p class="section-lede">当你的对话中包含这些词时，AI 会自动调用此 Skill：</p>
+  <div class="trigger-tags">
+    <span class="trigger-tag">PPT</span><span class="trigger-tag">slides</span><span class="trigger-tag">deck</span>
+    <span class="trigger-tag">幻灯片</span><span class="trigger-tag">演讲稿</span><span class="trigger-tag">分享稿</span>
+    <span class="trigger-tag">presentation</span><span class="trigger-tag">pitch deck</span><span class="trigger-tag">tech sharing</span>
+    <span class="trigger-tag">小红书图文</span><span class="trigger-tag">做一份</span><span class="trigger-tag">帮我写个</span>
+  </div>
+  <p class="section-lede" style="margin-top:12px;margin-bottom:0;font-size:13px;color:#888">⚠️ 如果你有安装其他制作 html、ppt 的 agent skill，为了不混淆，强烈建议你使用 <code>/ostar-all-in-html-ppt</code> 或者明确在对话里要求使用 ostar-all-in-html-ppt skill 制作。</p>
+
+  <h3 class="category-title" style="margin-top:28px">对话模板：3 个信息一次给全</h3>
+  <p class="section-lede">AI 在动手做 PPT 之前，需要知道 <strong>3 件事</strong>。一次性说清楚，效率最高：</p>
+
+  <div class="dialog-cards">
+    <div class="dialog-card">
+      <div class="dialog-num">①</div>
+      <div class="dialog-body">
+        <strong>内容和观众</strong>
+        <p>做什么主题？几页？给谁看（工程师 / 投资人 / 小红书读者 / 学生）？</p>
+      </div>
+    </div>
+    <div class="dialog-card">
+      <div class="dialog-num">②</div>
+      <div class="dialog-body">
+        <strong>风格偏好</strong>
+        <p>喜欢什么风格？（暗色科技 / 极简白 / 小红书风 / VC路演风）不确定可以让 AI 推荐。</p>
+      </div>
+    </div>
+    <div class="dialog-card">
+      <div class="dialog-num">③</div>
+      <div class="dialog-body">
+        <strong>模板选择</strong>
+        <p>用哪个现成模板打底？（技术分享 / 周报 / 产品发布 / 融资路演）或从零开始。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="category-title" style="margin-top:28px">实战对话示例</h3>
+
+  <!-- Example 1: Recommended workflow -->
+  <div class="dialog-example" style="border-color:#7a5cff;border-width:2px">
+    <div class="dialog-example-title">⭐ 示例 1：推荐工作流 — 最省事的方式</div>
+    <div class="dialog-bubbles">
+      <div class="dialog-bubble user">
+        <div class="bubble-role">👤 你说</div>
+        <div class="bubble-text">
+          <code>/ostar-all-in-html-ppt @技术分享文稿.md （可选：需要逐字稿）</code>
+        </div>
+      </div>
+      <div class="dialog-bubble ai">
+        <div class="bubble-role">🤖 AI 会回复</div>
+        <div class="bubble-text">
+          我读了你的 <code>技术分享文稿.md</code>，内容是关于微服务迁移实践，面向后端工程师。<br><br>
+          推荐：<br>
+          &nbsp;&nbsp;• 主题：<code>tokyo-night</code>（暗色科技，代码友好）或 <code>dracula</code><br>
+          &nbsp;&nbsp;• 模板：<code>tech-sharing</code>（8 页 · GitHub-dark · 议程+Q&A）<br>
+          &nbsp;&nbsp;• 预计 9 页：封面→议程→3 页内容→代码对比→总结→Q&A<br><br>
+          你觉得这个方案可以吗？或者想调整什么？
+        </div>
+      </div>
+      <div class="dialog-bubble user">
+        <div class="bubble-role">👤 你说</div>
+        <div class="bubble-text">可以，用 tokyo-night，帮我做吧</div>
+      </div>
+      <div class="dialog-bubble ai">
+        <div class="bubble-role">🤖 AI 会回复</div>
+        <div class="bubble-text">好的，开始生成。我会按 Markdown 结构自动排版：<code>#</code> 标题→封面页，<code>##</code> →章节分隔，<code>-</code> 列表→要点页，<code>```</code> 代码块→代码展示页...</div>
+      </div>
+    </div>
+    <div class="dialog-tip">💡 <strong>核心流程：</strong>① 把文稿保存为 <code>.md</code> 文件 → ② 输入 <code>/ostar-all-in-html-ppt @文档.md （可选：需要逐字稿）</code> 回车 → ③ Skill 自动读取内容并推荐主题和模板 → ④ 用自然语言确认或调整即可。全程无需手动指定参数，AI 会根据 Markdown 的层级结构自动判断哪些内容做封面、哪些做章节页、哪些做要点列表。</div>
+  </div>
+
+  <!-- Example 2 -->
+  <div class="dialog-example">
+    <div class="dialog-example-title">示例 2：技术分享（手动指定偏好）</div>
+    <div class="dialog-bubbles">
+      <div class="dialog-bubble user">
+        <div class="bubble-role">👤 你说</div>
+        <div class="bubble-text">帮我做一份技术分享 PPT，主题是"从单体到微服务的迁移实践"，大约 8-10 页，给公司内部后端工程师看。风格偏暗色科技，希望有代码块展示。用 tech-sharing 模板打底。</div>
+      </div>
+      <div class="dialog-bubble ai">
+        <div class="bubble-role">🤖 AI 会回复</div>
+        <div class="bubble-text">好的！确认一下：<br>1. 内容：单体→微服务迁移，8-10 页，后端工程师<br>2. 风格：推荐 <code>tokyo-night</code> 或 <code>dracula</code>（暗色+代码友好）<br>3. 模板：<code>tech-sharing</code>（GitHub-dark + 终端代码块 + 议程+Q&A）<br>我这就开始搭建。</div>
+      </div>
+    </div>
+    <div class="dialog-tip">✅ <strong>为什么这个对话高效？</strong>一次性给出了内容、受众、页数、风格偏好、模板选择 5 个信息。AI 不需要追问就能直接开工。</div>
+  </div>
+
+  <!-- Example 2 -->
+  <div class="dialog-example">
+    <div class="dialog-example-title">示例 3：小红书图文</div>
+    <div class="dialog-bubbles">
+      <div class="dialog-bubble user">
+        <div class="bubble-role">👤 你说</div>
+        <div class="bubble-text">我要做一份小红书图文，主题是"5 个提升效率的 Obsidian 插件推荐"，3:4 竖屏比例，风格要柔和暖色调，像杂志排版那样。用 xhs-post 模板。</div>
+      </div>
+      <div class="dialog-bubble ai">
+        <div class="bubble-role">🤖 AI 会回复</div>
+        <div class="bubble-text">收到！小红书图文配置：<br>1. 内容：5 个 Obsidian 插件推荐<br>2. 比例：3:4 @ 810×1080（竖屏）<br>3. 风格：<code>xiaohongshu-white</code> 或 <code>soft-pastel</code>（柔和暖色）<br>4. 模板：<code>xhs-post</code>（9 页 · 暖色粉彩 · 虚线贴纸卡片）<br>开始生成。</div>
+      </div>
+    </div>
+    <div class="dialog-tip">✅ <strong>为什么这个对话高效？</strong>明确了平台（小红书 = 3:4 竖屏）、内容类型（清单推荐）、风格关键词（柔和、杂志感），AI 可以直接匹配最佳模板。</div>
+  </div>
+
+  <!-- Example 3 -->
+  <div class="dialog-example">
+    <div class="dialog-example-title">示例 4：带逐字稿的演讲</div>
+    <div class="dialog-bubbles">
+      <div class="dialog-bubble user">
+        <div class="bubble-role">👤 你说</div>
+        <div class="bubble-text">下周我要给团队做一次 30 分钟的分享，讲"AI 辅助编程的最佳实践"，需要一份带逐字稿的 PPT。我怕讲不流畅，希望提词器里每页有 150-300 字的口语化提示。用 presenter-mode-reveal 模板。</div>
+      </div>
+      <div class="dialog-bubble ai">
+        <div class="bubble-role">🤖 AI 会回复</div>
+        <div class="bubble-text">好的！演讲者模式配置：<br>1. 内容：AI 辅助编程最佳实践，30 分钟 ≈ 10-12 页<br>2. 模板：<code>presenter-mode-reveal</code>（演讲者模式专用）<br>3. 逐字稿：每页 150-300 字，口语化，核心词加粗<br>按 <kbd>S</kbd> 键弹出演讲者窗口，提词器 + 计时器 + 下一页预览都准备好了。</div>
+      </div>
+    </div>
+    <div class="dialog-tip">✅ <strong>为什么这个对话高效？</strong>明确说了"怕讲不流畅"——AI 知道要加重逐字稿质量；说了"30 分钟"——AI 自动推算页数（约 2-3 分钟/页）；说了"口语化"——AI 会注意不用书面语。</div>
+  </div>
+
+  <!-- Example 4 -->
+  <div class="dialog-example">
+    <div class="dialog-example-title">示例 5：不确定风格？让 AI 推荐</div>
+    <div class="dialog-bubbles">
+      <div class="dialog-bubble user">
+        <div class="bubble-role">👤 你说</div>
+        <div class="bubble-text">帮我做一份融资路演的 PPT，面向 VC，大概 10 页左右。我不确定用什么风格和模板，你推荐一下。</div>
+      </div>
+      <div class="dialog-bubble ai">
+        <div class="bubble-role">🤖 AI 会回复</div>
+        <div class="bubble-text">融资路演推荐：<br>1. 风格：<code>pitch-deck-vc</code>（YC 风白底+蓝紫渐变）或 <code>corporate-clean</code>（纯白+海军蓝，更保守）<br>2. 模板：<code>pitch-deck</code>（10 页 · 大数字 · 增长图表 · 团队+竞品+TAM 全就位）<br>你倾向哪种风格？或者我先用 <code>pitch-deck-vc</code> 开始？</div>
+      </div>
+    </div>
+    <div class="dialog-tip">✅ <strong>为什么这个对话高效？</strong>不知道风格没关系——给出场景（"融资路演"）和受众（"VC"），AI 会基于这 36 个主题的专业分类推荐最合适的 2-3 个，你只需点头。</div>
+  </div>
+
+  <h3 class="category-title" style="margin-top:28px">对话技巧总结</h3>
+  <div class="tips-grid">
+    <div class="tip-card good">
+      <div class="tip-card-label">✅ 推荐做法</div>
+      <ul>
+        <li><strong>🥇 最佳实践：</strong>把文稿<strong>保存为 <code>.md</code> 文件</strong> → 输入 <code>/ostar-all-in-html-ppt @文档.md （可选：需要逐字稿）</code> 回车 → Skill 自动读取内容并推荐主题和模板 → 用自然语言确认或调整。AI 会利用 Markdown 的层级结构自动排版</li>
+        <li>一次性说清<strong>内容 + 受众 + 风格 + 模板</strong></li>
+        <li>用<strong>场景关键词</strong>代替具体 CSS 术语（说"小红书风"而不是"暖色 accent + 衬线字体"）</li>
+        <li>说<strong>页数或时长</strong>，AI 会帮你规划结构</li>
+        <li>不确定风格时，让 AI <strong>推荐 2-3 个候选</strong></li>
+        <li>演讲场景主动说<strong>"要逐字稿"</strong></li>
+      </ul>
+    </div>
+    <div class="tip-card bad">
+      <div class="tip-card-label">❌ 避免做法</div>
+      <ul>
+        <li>只说"帮我做个 PPT"—— AI 只能猜，结果大概率不对</li>
+        <li>在生成过程中<strong>频繁切换主题/模板</strong>，导致重复返工</li>
+        <li>逐页描述每个元素的像素位置——这不是设计稿</li>
+        <li>忘记说<strong>受众是谁</strong>——给 CTO 看的和给小红书读者看的内容深度完全不同</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Self-contained -->
+<section class="section" id="self-contained">
+  <h2 class="section-title">📄 单文件自包含 — 生成即交付</h2>
+  <div class="concept-card">
+    <div class="concept-icon">📄</div>
+    <div class="concept-body">
+      <h4>生成的 HTML 是独立的单文件，可以复制到任何设备和路径使用</h4>
+      <p>Skill 在生成 PPT 时会自动完成<strong>「内联」</strong>过程：读取仓库中的 <code>assets/base.css</code>、<code>assets/runtime.js</code>、<code>assets/animations/animations.css</code>、主题 CSS、模板 CSS 等外部文件，将其内容全部写入 <code>&lt;style&gt;</code> 和 <code>&lt;script&gt;</code> 标签中，最终产出<strong>一个独立的 <code>.html</code> 文件</strong>。</p>
+      <div class="concept-compare">
+        <div><strong>生成前</strong>：deck HTML 通过 <code>&lt;link&gt;</code> 和 <code>&lt;script src&gt;</code> 引用仓库中的共享资源，开发时修改方便</div>
+        <div><strong>生成后</strong>：所有 CSS 和 JS 全部内联到单个 HTML 文件中，<strong>不依赖任何外部文件</strong>（仅保留 Google Fonts CDN @import，字体是二进制无法内联）</div>
+        <div><strong>结果</strong>：你可以把这个 <code>.html</code> 文件 <strong>复制到任何设备、任何路径</strong>——发给同事、放 U 盘、上传网盘、用微信发送——对方双击打开即可演讲，无需安装任何软件，不需要原始仓库</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Project Structure -->
+<section class="section" id="structure">
+  <h2 class="section-title">📂 项目结构与资源路径</h2>
+
+  <div class="concept-card">
+    <div class="concept-icon">🏗️</div>
+    <div class="concept-body">
+      <h4>概念层级：从零件到成品</h4>
+      <p>这 5 个概念不是平级关系，而是<strong>层层组合</strong>：</p>
+    </div>
+  </div>
+
+  <div class="hierarchy-flow">
+    <div class="hf-item"><div class="hf-label">Token 系统</div><code>assets/base.css</code><small>30+ CSS 变量：颜色、阴影、圆角、字体</small></div>
+    <div class="hf-arrow">→ 覆盖 :root</div>
+    <div class="hf-item"><div class="hf-label">主题</div><code>assets/themes/<wbr>&lt;name&gt;.css</code><small>36 套 · 管「长什么样」</small></div>
+    <div class="hf-arrow">+</div>
+    <div class="hf-item"><div class="hf-label">布局</div><code>templates/single-page/<wbr>&lt;name&gt;.html</code><small>31 种 · 管「怎么摆」</small></div>
+    <div class="hf-arrow">→ 组合</div>
+    <div class="hf-item"><div class="hf-label">Deck 模板</div><code>templates/full-decks/<wbr>&lt;name&gt;/</code><small>15 套 · 管「完整故事线」</small></div>
+    <div class="hf-arrow">+</div>
+    <div class="hf-item"><div class="hf-label">动效</div><code>data-anim / data-fx</code><small>47 个 · 管「怎么动」</small></div>
+    <div class="hf-arrow">→ 运行时</div>
+    <div class="hf-item"><div class="hf-label">runtime.js</div><code>assets/runtime.js</code><small>键盘 · 演讲者 · 导出</small></div>
+    <div class="hf-arrow">=</div>
+    <div class="hf-item hf-result"><div class="hf-label">完整的 HTML PPT</div><small>单文件，丢浏览器即用</small></div>
+  </div>
+
+  <h3 class="category-title" style="margin-top:32px">资源存放路径速查</h3>
+  <div class="path-table-wrap">
+    <table class="path-table">
+      <thead><tr><th>资源类型</th><th>存放路径</th><th>数量</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>🎨 主题</td><td><code>assets/themes/&lt;name&gt;.css</code></td><td>36</td><td>每文件 ~20 行，仅覆盖 :root CSS 变量</td></tr>
+        <tr><td>📐 单页布局</td><td><code>templates/single-page/&lt;name&gt;.html</code></td><td>31</td><td>独立完整 HTML，&lt;body class="single"&gt;</td></tr>
+        <tr><td>📦 完整 Deck</td><td><code>templates/full-decks/&lt;name&gt;/</code></td><td>15</td><td>每模板一文件夹：index.html + style.css + README.md</td></tr>
+        <tr><td>✨ CSS 动画</td><td><code>assets/animations/animations.css</code></td><td>27</td><td>所有 @keyframes + .anim-* 类集中在一个文件</td></tr>
+        <tr><td>🎆 Canvas FX</td><td><code>assets/animations/fx/&lt;name&gt;.js</code></td><td>20+1</td><td>_util.js 是公共依赖，其余 20 个各一个文件</td></tr>
+        <tr><td>⚙️ FX 运行时</td><td><code>assets/animations/fx-runtime.js</code></td><td>1</td><td>动态加载 FX 模块 + slide 进入/离开生命周期</td></tr>
+        <tr><td>⌨️ 键盘运行时</td><td><code>assets/runtime.js</code></td><td>1</td><td>所有快捷键 + 演讲者窗口 + 导出 + 总览网格</td></tr>
+        <tr><td>🎯 Token 系统</td><td><code>assets/base.css</code></td><td>1</td><td>:root 默认变量 + .card/.grid/.slide 布局原语 + 导出/打印样式</td></tr>
+        <tr><td>🔤 Webfont</td><td><code>assets/fonts.css</code></td><td>1</td><td>Google Fonts CDN @import（4 款字体）</td></tr>
+        <tr><td>📖 Skill 定义</td><td><code>SKILL.md</code></td><td>1</td><td>AI 创作规则 + 键盘自检清单 + 导出自检清单</td></tr>
+        <tr><td>📚 参考文档</td><td><code>references/*.md</code></td><td>8</td><td>主题/布局/动效/模板目录 + 创作指南 + Bug 修复手册</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="category-title" style="margin-top:32px">核心配置文件</h3>
+  <div class="config-cards">
+    <div class="config-card">
+      <div class="config-card-name"><code>assets/base.css</code></div>
+      <div class="config-card-role"><strong>整个设计系统的根基。</strong>定义 30+ CSS 变量和所有布局原语。每个主题只覆盖 :root 变量值。</div>
+    </div>
+    <div class="config-card">
+      <div class="config-card-name"><code>assets/runtime.js</code></div>
+      <div class="config-card-role"><strong>每份 deck 必须引入。</strong>键盘翻页、T 键主题、O 键总览、S 键演讲者、P 键导出、Escape 关闭。</div>
+    </div>
+    <div class="config-card">
+      <div class="config-card-name"><code>SKILL.md</code></div>
+      <div class="config-card-role"><strong>AI 生成 deck 的行为指南。</strong>单文件自包含、3 步生成流程、键盘/导出自检清单。</div>
+    </div>
+    <div class="config-card">
+      <div class="config-card-name"><code>references/inline-errors.md</code></div>
+      <div class="config-card-role"><strong>键盘 Bug 速查。</strong>T 键失效、JS 语法错误、overview CSS 缺失等常见 Bug 的根因和修复。</div>
+    </div>
+    <div class="config-card">
+      <div class="config-card-name"><code>references/export-pitfalls.md</code></div>
+      <div class="config-card-role"><strong>导出 Bug 速查。</strong>backdrop-filter 移除、slide 背景缺失等 12 个已知导出 Bug 的修复。</div>
+    </div>
+  </div>
+</section>
+
+<!-- Themes -->
+<section class="section" id="themes">
+  <h2 class="section-title">🎨 36 套主题</h2>
+  <div class="concept-card">
+    <div class="concept-icon">🎨</div>
+    <div class="concept-body">
+      <h4>什么是「主题」？</h4>
+      <p>主题是一套 <strong>CSS 变量（Token）</strong> 的集合，定义了演示文稿的<strong>视觉基调</strong>：背景色、文字色、强调色、卡片样式、阴影、圆角、字体等 20+ 个属性。它不是布局，不是内容——它只管「<strong>长什么样</strong>」。</p>
+      <div class="concept-compare">
+        <div><strong>类比</strong>：主题就像 PowerPoint 的「<strong>配色方案 + 字体方案</strong>」</div>
+        <div><strong>作用</strong>：换一个主题 CSS 文件 = 整个 deck 瞬间换风格，内容完全不受影响</div>
+        <div><strong>操作</strong>：按 <kbd>T</kbd> 键循环切换，或在 HTML 中替换 <code>&lt;link id="theme-link"&gt;</code> 的 href。也可以用自然语言对话更换（如"帮我换成 tokyo-night 主题"）</div>
+      </div>
+    </div>
+  </div>
+  <p class="section-lede" style="margin-top:20px">每张卡片是一个 <code>&lt;iframe&gt;</code>，加载了该主题的真实 CSS。</p>
+  <div class="theme-grid" id="theme-grid"></div>
+</section>
+
+<!-- Layouts -->
+<section class="section" id="layouts">
+  <h2 class="section-title">📐 31 种页面布局</h2>
+  <div class="concept-card">
+    <div class="concept-icon">📐</div>
+    <div class="concept-body">
+      <h4>什么是「页面布局」？</h4>
+      <p>布局是<strong>单页幻灯片的 HTML 骨架</strong>——它决定了<strong>内容怎么摆</strong>：封面怎么设计、要点列表怎么排、数据图表放哪里、代码块怎么展示。每个布局是一个 <code>&lt;section class="slide"&gt;</code> 代码块，带完整的 demo 数据。</p>
+      <div class="concept-compare">
+        <div><strong>类比</strong>：布局就像 PowerPoint 的「<strong>版式 / 幻灯片母版</strong>」</div>
+        <div><strong>与主题的关系</strong>：主题管颜色 → 布局管结构 → 两者独立组合。同一个「双栏布局」，套上 <code>tokyo-night</code> 是暗色技术风，套上 <code>xiaohongshu-white</code> 就变成小红书风</div>
+        <div><strong>使用方式</strong>：可以用自然语言对话更换（如"帮我把封面换成双栏布局"），也可以手动操作。下面以 <code>stat-highlight.html</code> 为例，演示如何用 3 步把布局变成你自己 deck 的一页</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="usage-example">
+    <div class="usage-title">📖 实战示例：把「数据高亮」布局加入你的 Deck</div>
+    <div class="usage-steps">
+
+      <div class="usage-step">
+        <div class="usage-step-num">1</div>
+        <div class="usage-step-body">
+          <strong>打开布局源文件</strong>，找到 <code>&lt;section class="slide"&gt;</code>
+          <div class="usage-code">
+<div class="usage-code-label">templates/single-page/stat-highlight.html（源文件）</div>
+<pre><code>&lt;section class="slide center" data-title="Stat"&gt;
+  &lt;div style="font-size:260px;line-height:1;font-weight:900;letter-spacing:-.05em"&gt;
+    &lt;span class="counter gradient-text" data-to="92"&gt;0&lt;/span&gt;
+    &lt;span class="gradient-text"&gt;%&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;h3&gt;的准备时间被你省下&lt;/h3&gt;
+  &lt;p class="lede"&gt;在 10 个真实项目中，使用 html-ppt 的平均 deck 制作时间从 4 小时降到了 20 分钟。&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="usage-step">
+        <div class="usage-step-num">2</div>
+        <div class="usage-step-body">
+          <strong>复制到你的 deck 中</strong>，放在 <code>&lt;div class="deck"&gt;</code> 里面
+          <div class="usage-code">
+<div class="usage-code-label">你的 deck 文件（如 my-talk/index.html）</div>
+<pre><code>&lt;div class="deck"&gt;
+  <em>&lt;!-- 已有的其他 slide --&gt;</em>
+  &lt;section class="slide" data-title="Cover"&gt;...&lt;/section&gt;
+
+  <mark>&lt;!-- 👇 从这里粘贴 --&gt;</mark>
+  &lt;section class="slide center" data-title="Stat"&gt;
+    &lt;div style="font-size:260px;..."&gt;
+      &lt;span class="counter gradient-text" data-to="92"&gt;0&lt;/span&gt;
+      &lt;span class="gradient-text"&gt;%&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;h3&gt;的准备时间被你省下&lt;/h3&gt;
+    &lt;p class="lede"&gt;...&lt;/p&gt;
+  &lt;/section&gt;
+  <mark>&lt;!-- 👆 粘贴到这里 --&gt;</mark>
+&lt;/div&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="usage-step">
+        <div class="usage-step-num">3</div>
+        <div class="usage-step-body">
+          <strong>替换 demo 数据</strong> 为你自己的内容
+          <div class="usage-code">
+<div class="usage-code-label">修改后 — 你的真实内容</div>
+<pre><code>&lt;section class="slide center" data-title="营收"&gt;
+  &lt;div style="font-size:260px;line-height:1;font-weight:900;letter-spacing:-.05em"&gt;
+    &lt;span class="counter gradient-text" data-to="<mark>58</mark>"&gt;0&lt;/span&gt;
+    &lt;span class="gradient-text"&gt;%&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;h3&gt;<mark>的营收同比增长</mark>&lt;/h3&gt;
+  &lt;p class="lede"&gt;<mark>Q3 营收突破 2400 万元，主要来自新产品线的上市和市场拓展。</mark>&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="usage-tip">
+      💡 <strong>关键技巧</strong>：保留 <code>class="slide"</code> 和 <code>data-title</code> 不变（runtime.js 依赖它们做翻页和总览）；保留 CSS 动画相关属性（<code>class="counter"</code>、<code>data-to</code>、<code>gradient-text</code> 等）；只替换文字内容和数字。所有 31 个布局都遵循同样的规则。
+    </div>
+  </div>
+
+  <p class="section-lede" style="margin-top:20px">每张卡片是该布局 HTML 文件的缩放预览。</p>
+  <div class="layout-grid" id="layout-grid"></div>
+</section>
+
+<!-- Animations -->
+<section class="section" id="animations">
+  <h2 class="section-title">✨ 47 个动效</h2>
+  <div class="concept-card">
+    <div class="concept-icon">✨</div>
+    <div class="concept-body">
+      <h4>什么是「动效」？</h4>
+      <p>动效分两类：<strong>CSS 入场动画</strong>和<strong>Canvas 持续特效</strong>。CSS 动画是「一次性」的——元素进入幻灯片时播放一次（如淡入、上滑、弹出）；Canvas FX 是「持续性」的——在幻灯片展示期间一直运行（如粒子爆炸、烟花、矩阵雨、知识图谱）。</p>
+      <div class="concept-compare">
+        <div><strong>CSS 动画（27 个）</strong>：用 <code>data-anim="name"</code> 添加到任意元素，runtime.js 在每次翻到该页时自动重新触发。适合标题入场、列表逐行出现、数字跳动</div>
+        <div><strong>Canvas FX（20 个）</strong>：用 <code>data-fx="name"</code> 添加到容器 div，由 fx-runtime.js 管理生命周期（进入页面启动、离开页面停止）。适合封面背景、数据可视化、庆祝页</div>
+        <div><strong>设计原则</strong>：一页最多 1-2 种动画，混用 5 种看起来很乱。stagger-list + 一个 hero 入场 = 干净节奏</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="category-title">CSS 入场动画（27 个）— 点击卡片播放</h3>
+  <div class="anim-layout">
+    <div class="anim-stage-col">
+      <div class="anim-stage-wrap">
+        <div class="anim-stage" id="anim-stage">
+          <div class="anim-stage-inner" id="anim-stage-target">
+            <span style="font-size:40px;font-weight:900">Animation</span>
+            <p style="font-size:16px;color:var(--text-2)">点击右侧卡片查看效果</p>
+          </div>
+        </div>
+        <div class="anim-stage-label">🎯 动画演示区</div>
+      </div>
+    </div>
+    <div class="anim-cards-col">
+      <div class="anim-grid" id="anim-grid-css"></div>
+    </div>
+  </div>
+
+  <h3 class="category-title" style="margin-top: 32px">Canvas 持续特效（20 个）— 实际运行预览</h3>
+  <div class="anim-fx-grid" id="anim-grid-fx"></div>
+</section>
+
+<!-- Templates -->
+<section class="section" id="templates">
+  <h2 class="section-title">📦 15 套完整 Deck 模板</h2>
+  <div class="concept-card">
+    <div class="concept-icon">📦</div>
+    <div class="concept-body">
+      <h4>什么是「Deck 模板」？</h4>
+      <p>Deck 模板是一份<strong>完整的多页幻灯片文件</strong>（通常 6-10 页），已经帮你搭配好了主题 + 布局 + 动效的组合。它不是零件，而是<strong>可以直接用的成品</strong>——打开 <code>index.html</code>，替换文字和图片，你的 PPT 就做好了。也可以用自然语言对话更换（如"帮我把这个模板换成 product-launch"）。</p>
+      <div class="concept-compare">
+        <div><strong>类比</strong>：Deck 模板就像 PowerPoint 的「<strong>模板 (.potx)</strong>」——封面、目录、内容页、图表页、结尾页全部就位</div>
+        <div><strong>与布局/主题的区别</strong>：主题是配色 → 布局是单页结构 → <strong>Deck 模板是完整的多页组合</strong>，三者是层层递进的关系</div>
+        <div><strong>来源</strong>：8 套从真实项目中提取（小红书、技术评测、架构白皮书等），7 套为通用场景脚手架（路演、发布、周报等）</div>
+      </div>
+    </div>
+  </div>
+  <p class="section-lede" style="margin-top:20px">每张卡片是该模板 <code>index.html</code> 的缩放预览。</p>
+  <div class="tpl-grid" id="tpl-grid"></div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+  <h2 class="section-title">⚡ 功能特性</h2>
+
+  <div class="feature-card">
+    <h3>⌨️ 键盘操控</h3>
+    <div class="kbd-grid">
+      <div class="kbd-item"><kbd>←</kbd><kbd>→</kbd><kbd>Space</kbd><span>翻页</span></div>
+      <div class="kbd-item"><kbd>F</kbd><span>全屏</span></div>
+      <div class="kbd-item"><kbd>T</kbd><span>切换主题</span></div>
+      <div class="kbd-item"><kbd>S</kbd><span>演讲者模式</span></div>
+      <div class="kbd-item"><kbd>P</kbd><span>导出对话框</span></div>
+      <div class="kbd-item"><kbd>O</kbd><span>总览网格</span></div>
+      <div class="kbd-item"><kbd>N</kbd><span>备注抽屉</span></div>
+      <div class="kbd-item"><kbd>R</kbd><span>重置计时器</span></div>
+      <div class="kbd-item"><kbd>A</kbd><span>测试动画</span></div>
+      <div class="kbd-item"><kbd>Esc</kbd><span>关闭叠加层</span></div>
+    </div>
+  </div>
+
+  <div class="feature-card">
+    <h3>🎤 演讲者模式（按 <kbd>S</kbd> 键）</h3>
+    <div class="concept-card" style="margin-bottom:16px;background:#fafbfc">
+      <div class="concept-icon">🎤</div>
+      <div class="concept-body">
+        <h4>什么是「演讲者模式」？</h4>
+        <p>演讲者模式是一个<strong>独立弹出窗口</strong>，在你演讲时显示在演讲者自己的屏幕上（观众看不到）。它解决了演讲者最核心的焦虑——<strong>「下一页是什么？」「我讲到哪了？」「时间够吗？」「这段话怎么说？」</strong></p>
+        <div class="concept-compare">
+          <div><strong>类比</strong>：就像 PowerPoint 的「演示者视图」——观众看到全屏幻灯片，演讲者看到备注+下一页+计时器</div>
+          <div><strong>核心技术</strong>：每张幻灯片的 <code>&lt;aside class="notes"&gt;</code> 写逐字稿（150–300 字），按 <kbd>S</kbd> 弹出窗口显示大字体提词器；当前页和下一页用 iframe 像素级预览（加载同一份 HTML + CSS，颜色保证一致）</div>
+          <div><strong>卡片可拖拽缩放</strong>：4 张磁吸卡片（当前页/下一页/提词器/计时器）的位置和大小自动保存到 localStorage，每个 deck 独立记忆</div>
+        </div>
+      </div>
+    </div>
+    <div class="presenter-cards">
+      <div class="pcard pcard-current"><div class="pcard-header">🔵 CURRENT</div><div class="pcard-body">当前幻灯片 — 像素级 iframe 预览</div></div>
+      <div class="pcard pcard-next"><div class="pcard-header">🟣 NEXT</div><div class="pcard-body">下一页 — 提前准备过渡</div></div>
+      <div class="pcard pcard-script"><div class="pcard-header">🟠 SPEAKER SCRIPT</div><div class="pcard-body">逐字稿提词器 — 大字体可滚动，150–300 字/页</div></div>
+      <div class="pcard pcard-timer"><div class="pcard-header">🟢 TIMER</div><div class="pcard-body">计时器 + 页码 — 卡片可拖拽缩放，布局记忆</div></div>
+    </div>
+  </div>
+
+  <div class="feature-card">
+    <h3>📦 一键导出（按 <kbd>P</kbd> 键）</h3>
+    <div class="export-formats">
+      <div class="export-fmt"><strong>PDF (SVG)</strong>浏览器打印 → 矢量 PDF</div>
+      <div class="export-fmt"><strong>PDF (PNG)</strong>Canvas 渲染 → 位图 PDF</div>
+      <div class="export-fmt"><strong>SVG (.zip)</strong>每页独立 SVG 打包</div>
+      <div class="export-fmt"><strong>PNG (.zip)</strong>每页独立 PNG 打包</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>ostar-all-in-html-ppt · MIT · Copyright (c) 2026 ostar999</p>
+</footer>
+
+</main>
+
+<script src="docs/showcase/showcase.js"></script>
+<script>
+// Lazy load iframes with IntersectionObserver
+// Strategy: remove src from all iframes, store in data-src, restore on scroll
+(function(){
+  var total = 0, loaded = 0;
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (!entry.isIntersecting) return;
+      var iframe = entry.target;
+      var src = iframe.getAttribute('data-src');
+      if (!src || iframe.src) return; // already loaded
+
+      iframe.src = src;
+      iframe.removeAttribute('data-src');
+      loaded++;
+      observer.unobserve(iframe);
+
+      // Remove placeholder
+      var ph = iframe.parentNode ? iframe.parentNode.querySelector('.lazy-ph') : null;
+      if (ph) ph.remove();
+    });
+  }, { rootMargin: '300px' });
+
+  // Collect all iframes, strip src, add placeholder
+  setTimeout(function(){
+    var iframes = document.querySelectorAll('iframe[src]');
+    iframes.forEach(function(iframe){
+      var src = iframe.src;
+      if (!src || src === 'about:blank') return;
+
+      // Skip blob URLs — they're already loaded and lightweight
+      if (src.startsWith('blob:')) return;
+
+      // Store src and clear it
+      iframe.setAttribute('data-src', src);
+      iframe.removeAttribute('src');
+      iframe.style.background = '#f0f2f5';
+
+      // Add placeholder overlay inside parent
+      if (iframe.parentNode && iframe.parentNode.style && getComputedStyle(iframe.parentNode).position === 'relative') {
+        // parent already has position:relative (like layout-iframe-wrap, tpl-iframe-wrap)
+      } else if (iframe.parentNode) {
+        iframe.parentNode.style.position = 'relative';
+      }
+      var ph = document.createElement('div');
+      ph.className = 'lazy-ph';
+      ph.textContent = '↓ 滚动至此加载';
+      iframe.parentNode.insertBefore(ph, iframe);
+
+      total++;
+      observer.observe(iframe);
+    });
+
+    console.log('Lazy loading: ' + total + ' iframes deferred, ' + loaded + ' blob URLs kept');
+  }, 200);
+})();
+</script>
+</body>
+</html>
