@@ -408,7 +408,16 @@ ostar-all-in-html-ppt/
 ├── SKILL.md                 (this file)
 ├── README.md                (中文 README)
 ├── README.EN.md             (English README)
+├── showcase.html            (可视化展示页：主题/布局/动效/模板总览)
 ├── references/              (detailed catalogs, load as needed)
+│   ├── themes.md            (36 themes with when-to-use)
+│   ├── layouts.md           (31 layout types)
+│   ├── animations.md        (27 CSS + 20 FX catalog)
+│   ├── full-decks.md        (15 full-deck templates)
+│   ├── presenter-mode.md    (🎤 presenter mode + speaker script guide)
+│   ├── authoring-guide.md   (full workflow)
+│   ├── inline-errors.md     (🛑 keyboard/runtime error reference)
+│   └── export-pitfalls.md   (P-key export error reference)
 ├── assets/
 │   ├── base.css             (tokens + primitives — do not edit per deck)
 │   ├── fonts.css            (webfont imports)
@@ -428,10 +437,15 @@ ostar-all-in-html-ppt/
 │   └── single-page/*.html         (31 layout files with demo data)
 ├── scripts/
 │   ├── new-deck.sh                (scaffold a deck from deck.html)
-│   └── render.sh                  (headless Chrome → PNG)
+│   ├── render.sh                  (headless Chrome → PNG)
+│   └── verify-output/             (self-test screenshots)
 ├── examples/
 │   ├── demo-deck/                  (complete working deck)
-│   └── export-reference/           (P-key export reference template)
+│   ├── export-reference/           (P-key export reference template)
+│   └── ganqian-peixun/            (training example deck)
+└── docs/
+    ├── readme/                    (README images)
+    └── showcase/                  (showcase CSS/JS/preview)
 ```
 
 ## Rendering to PNG

@@ -164,13 +164,16 @@ ostar-all-in-html-ppt/
 ├── SKILL.md                      agent 入口
 ├── README.md                     中文 README（本文件）
 ├── README.EN.md                  英文 README
-├── references/                   详细文档
+├── showcase.html                 可视化展示页（主题/布局/动效/模板总览）
+├── references/                   详细参考文档
 │   ├── themes.md                 36 主题 + 使用场景
 │   ├── layouts.md                31 布局
 │   ├── animations.md             27 CSS + 20 FX 目录
 │   ├── full-decks.md             15 完整 deck 模板
 │   ├── presenter-mode.md         🎤 演讲者模式 + 逐字稿指南
-│   └── authoring-guide.md        完整工作流
+│   ├── authoring-guide.md        完整工作流
+│   ├── inline-errors.md          🛑 键盘/运行时错误修复手册
+│   └── export-pitfalls.md        P 键导出错误修复手册
 ├── assets/
 │   ├── base.css                  共享 tokens + 基础组件
 │   ├── fonts.css                 web 字体引入
@@ -191,12 +194,14 @@ ostar-all-in-html-ppt/
 ├── scripts/
 │   ├── new-deck.sh               脚手架
 │   ├── render.sh                 headless Chrome → PNG
-│   └── verify-output/            56 张自测截图
+│   └── verify-output/            自测截图
 ├── examples/
 │   ├── demo-deck/                 完整可运行的示例 deck
-│   └── export-reference/          P 键导出参考模板
+│   ├── export-reference/          P 键导出参考模板
+│   └── ganqian-peixun/           干前培训示例 deck
 └── docs/
-    └── readme/                    README 配图
+    ├── readme/                    README 配图
+    └── showcase/                  showcase 样式/JS/preview
 ```
 
 ### 概念层级：从零件到成品
