@@ -456,16 +456,18 @@ A deck template is a **complete multi-slide file** (usually 6-10 slides) with pr
 
 | Key | Action |
 |-----|--------|
-| `←` `→` `Space` | Navigate slides |
+| `←` `→` `Space` `PgUp` `PgDn` `Home` `End` | Navigate slides |
 | `F` | Fullscreen |
-| `T` | Cycle themes |
-| `S` | Presenter mode (popup window) |
-| `P` | Export dialog |
-| `O` | Overview grid |
-| `N` | Notes drawer |
-| `R` | Reset timer |
-| `A` | Test animation on current slide |
+| `S` | Presenter mode (magnetic-card popup: CURRENT / NEXT / SCRIPT / TIMER) |
+| `P` | Export dialog — select slides → PDF(SVG) / PDF(PNG) / SVG(.zip) / PNG(.zip) |
+| `N` | Bottom notes drawer |
+| `R` | Reset timer (in presenter window) |
+| `O` | Slide overview grid |
+| `T` | Cycle themes (auto-syncs to presenter window) |
+| `A` | Cycle demo animation on current slide |
 | `Esc` | Close all overlays |
+| `#/N` (URL) | Deep-link to slide N |
+| `?preview=N` (URL) | Preview mode (single slide, no chrome) |
 
 ### 🎤 Presenter Mode (press `S`)
 

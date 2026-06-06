@@ -13,6 +13,13 @@
     display:flex;align-items:center;justify-content:center;
     color:#bbb;font-size:11px;z-index:1;pointer-events:none}
   iframe[data-src]{background:#f0f2f5}
+  .kbd-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e8eaf0}
+  .kbd-table thead{background:#f8f9fb}
+  .kbd-table th{padding:10px 14px;text-align:left;font-weight:700;color:#555;font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e8eaf0}
+  .kbd-table td{padding:9px 14px;border-bottom:1px solid #f0f2f5;color:#555;line-height:1.5}
+  .kbd-table tr:last-child td{border-bottom:none}
+  .kbd-table kbd{display:inline-block;padding:2px 7px;background:#f0f2f5;border:1px solid #dde0e6;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:#333;min-width:22px;text-align:center;margin:1px}
+  .kbd-table code{background:#edf2f9;padding:1px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#7a5cff}
 </style>
 </head>
 <body>
@@ -489,18 +496,23 @@
 
   <div class="feature-card">
     <h3>⌨️ 键盘操控</h3>
-    <div class="kbd-grid">
-      <div class="kbd-item"><kbd>←</kbd><kbd>→</kbd><kbd>Space</kbd><span>翻页</span></div>
-      <div class="kbd-item"><kbd>F</kbd><span>全屏</span></div>
-      <div class="kbd-item"><kbd>T</kbd><span>切换主题</span></div>
-      <div class="kbd-item"><kbd>S</kbd><span>演讲者模式</span></div>
-      <div class="kbd-item"><kbd>P</kbd><span>导出对话框</span></div>
-      <div class="kbd-item"><kbd>O</kbd><span>总览网格</span></div>
-      <div class="kbd-item"><kbd>N</kbd><span>备注抽屉</span></div>
-      <div class="kbd-item"><kbd>R</kbd><span>重置计时器</span></div>
-      <div class="kbd-item"><kbd>A</kbd><span>测试动画</span></div>
-      <div class="kbd-item"><kbd>Esc</kbd><span>关闭叠加层</span></div>
-    </div>
+    <table class="kbd-table">
+      <thead><tr><th>按键</th><th>功能</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>←</kbd><kbd>→</kbd><kbd>Space</kbd><kbd>PgUp</kbd><kbd>PgDn</kbd><kbd>Home</kbd><kbd>End</kbd></td><td>翻页导航</td></tr>
+        <tr><td><kbd>F</kbd></td><td>全屏</td></tr>
+        <tr><td><kbd>S</kbd></td><td>演讲者模式（磁吸卡片弹出窗口：当前页 / 下一页 / 提词器 / 计时器）</td></tr>
+        <tr><td><kbd>P</kbd></td><td>导出对话框 — 选页 → PDF(SVG) / PDF(PNG) / SVG(.zip) / PNG(.zip)</td></tr>
+        <tr><td><kbd>N</kbd></td><td>底部备注抽屉</td></tr>
+        <tr><td><kbd>R</kbd></td><td>重置计时器（演讲者窗口内）</td></tr>
+        <tr><td><kbd>O</kbd></td><td>幻灯片总览网格</td></tr>
+        <tr><td><kbd>T</kbd></td><td>循环切换主题（自动同步到演讲者窗口）</td></tr>
+        <tr><td><kbd>A</kbd></td><td>在当前页循环演示动画</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>关闭所有弹窗</td></tr>
+        <tr><td><code>#/N</code> (URL)</td><td>深链到第 N 页</td></tr>
+        <tr><td><code>?preview=N</code> (URL)</td><td>预览模式（只显示单页，隐藏 chrome）</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="feature-card">
