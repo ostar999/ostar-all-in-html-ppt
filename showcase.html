@@ -31,6 +31,7 @@
   </div>
   <ul class="sidebar-nav">
     <li><a href="#hero" class="active">概览</a></li>
+    <li><a href="#intro">📖 项目介绍</a></li>
     <li><a href="#usage">💬 使用方法</a></li>
     <li><a href="#self-contained">📄 单文件自包含</a></li>
     <li><a href="#structure">📂 项目结构</a></li>
@@ -39,6 +40,7 @@
     <li><a href="#animations">✨ 47 个动效</a></li>
     <li><a href="#templates">📦 15 套模板</a></li>
     <li><a href="#features">⚡ 功能特性</a></li>
+    <li style="margin-top:12px;padding-top:12px;border-top:1px solid #e8eaf0"><a href="https://github.com/ostar999/ostar-all-in-html-ppt" target="_blank" style="font-size:11px;color:#888">🔗 GitHub ↗</a></li>
   </ul>
 </nav>
 
@@ -58,6 +60,32 @@
     </button>
   </div>
   <p class="hero-notice">⚠️ 本页面需要加载大量主题预览、布局 iframe 和动画特效，如遇卡顿请耐心等待或刷新页面。</p>
+</section>
+
+<!-- Project Intro -->
+<section class="section" id="intro">
+  <h2 class="section-title">📖 项目介绍</h2>
+
+  <div class="concept-card">
+    <div class="concept-icon">🔗</div>
+    <div class="concept-body">
+      <h4>项目来源</h4>
+      <p>基于 <a href="https://github.com/lewislulu/html-ppt-skill" target="_blank">lewislulu/html-ppt-skill</a> Fork 改进优化，感谢仓库作者 <a href="https://github.com/lewislulu" target="_blank">lewis</a> 和 <a href="https://github.com/g199209" target="_blank">Gao Mingfei</a> 做出的杰出贡献。</p>
+    </div>
+  </div>
+
+  <div class="concept-card" style="margin-top:8px">
+    <div class="concept-icon">🆕</div>
+    <div class="concept-body">
+      <h4>本仓库作者新增功能</h4>
+      <p><strong>作者：</strong> ostar999 &lt;ota1754@qq.com&gt;</p>
+      <ul style="font-size:13px;color:#555;line-height:1.8;padding-left:18px;margin:8px 0 0">
+        <li>新增 <kbd>P</kbd> 键 PDF/SVG/PNG 一键导出功能</li>
+        <li>新增总览全部主题、页面布局、动效、Deck 模板的 HTML 展示页（本页 <code>showcase.html</code>）</li>
+      </ul>
+    </div>
+  </div>
+
 </section>
 
 <!-- Usage Guide -->
@@ -534,6 +562,25 @@
       <div class="pcard pcard-next"><div class="pcard-header">🟣 NEXT</div><div class="pcard-body">下一页 — 提前准备过渡</div></div>
       <div class="pcard pcard-script"><div class="pcard-header">🟠 SPEAKER SCRIPT</div><div class="pcard-body">逐字稿提词器 — 大字体可滚动，150–300 字/页</div></div>
       <div class="pcard pcard-timer"><div class="pcard-header">🟢 TIMER</div><div class="pcard-body">计时器 + 页码 — 卡片可拖拽缩放，布局记忆</div></div>
+    </div>
+
+    <img src="docs/readme/presenter.png" alt="演讲者模式 · 4 个磁吸卡片" style="width:100%;max-width:720px;border-radius:12px;border:1px solid #e8eaf0;margin-top:16px;display:block">
+
+    <div class="presenter-detail" style="margin-top:20px">
+      <h4 style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:10px">为什么预览是像素级完美的？</h4>
+      <p style="font-size:12px;color:#666;line-height:1.7">每个卡片是一个 <code>&lt;iframe&gt;</code>，加载的是<strong>同一份 deck HTML 文件</strong>，只是 URL 多了 <code>?preview=N</code> 参数。runtime 检测到这个参数后，只渲染第 N 页并隐藏所有 chrome —— 所以预览使用<strong>和观众视图完全相同的 CSS、主题、字体、viewport</strong>，颜色和排版保证 100% 一致。</p>
+
+      <h4 style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:10px;margin-top:16px">丝滑翻页（零闪烁）</h4>
+      <p style="font-size:12px;color:#666;line-height:1.7">翻页时演讲者窗口通过 <code>postMessage({type:'preview-goto', idx:N})</code> 通知 iframe，iframe 只是切换 <code>.is-active</code> class —— <strong>不重新加载、不白屏、不闪烁</strong>。两个窗口也通过 <code>BroadcastChannel</code> 双向同步翻页。</p>
+
+      <h4 style="font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:10px;margin-top:16px">逐字稿 3 条铁律</h4>
+      <ol style="font-size:12px;color:#666;line-height:1.9;padding-left:20px;margin:0">
+        <li><strong>提示信号，不是讲稿</strong> — 关键词加粗，过渡句独立成段</li>
+        <li><strong>每页 150–300 字</strong> — 约 2–3 分钟/页的节奏</li>
+        <li><strong>用口语，不用书面语</strong> — "所以" 不是 "因此"，"这个" 不是 "该"</li>
+      </ol>
+
+      <p style="font-size:12px;color:#888;margin-top:12px">📖 详见 <a href="references/presenter-mode.md" style="color:#7a5cff">references/presenter-mode.md</a>，或直接复制 <code>templates/full-decks/presenter-mode-reveal/</code> 现成模板 —— 每一页都带完整 150–300 字的示例逐字稿。</p>
     </div>
   </div>
 
