@@ -158,6 +158,13 @@ inline it NOW. Do not ship a deck with external dependencies.
 If **any** key is unresponsive, stop and fix BEFORE proceeding.
 See [references/inline-errors.md](references/inline-errors.md).
 
+**🛑 NO compact keyboard shortcut bar in HTML.** The generated deck HTML
+must NOT contain a compact keyboard shortcut reminder bar like
+"S 演讲者视图·T切换主题·←→翻页·F全屏·O总览·P导出". Such a bar implies the
+keys were merely documented, not tested. Every key must be verified
+individually — checklist-driven, not summarized in a UI bar. If such a bar
+exists in the HTML, remove it before declaring the deck done.
+
 ### Step 2: Export verification（导出验证）
 
 1. Press P → export dialog opens, all thumbnails correctly styled.
@@ -235,6 +242,12 @@ cause of user-reported issues.
   See [references/inline-errors.md](references/inline-errors.md) for a complete
   catalog of common keyboard/runtime bugs and verified fixes.
 
+  **🛑 NO compact keyboard shortcut bar in HTML.** Never add a compact
+  keyboard shortcut reminder bar (like "S演讲者·T主题·←→翻页·F全屏·O总览·P导出")
+  to the deck HTML. Such bars shortcut around real verification — every key
+  must be tested individually, not advertised in a UI summary. If you discover
+  such a bar in the generated HTML, remove it immediately.
+
   **3b. Export check (every button — click ALL of them):**
 
   1. Press P → export dialog opens with all slide thumbnails correctly styled.
@@ -253,6 +266,14 @@ cause of user-reported issues.
   when the user actually tries to use the deck.
 - **Always start from a template.** Don't author slides from scratch — copy the
   closest layout from `templates/single-page/` first, then replace content.
+- **🛑 Preserve images when converting from Markdown or other formats.** If the
+  user provides a Markdown file (`.md`) or any other document format that
+  contains images (`![](path)`, `<img>`, etc.), the generated HTML deck MUST
+  include those images by default. Do NOT drop, skip, or replace images with
+  placeholders. Read the image references from the source file and embed them
+  in the corresponding slides using `<img>` tags with proper `src` paths
+  (absolute or relative as appropriate). If an image path is broken, tell the
+  user — don't silently omit it.
 - **Use tokens, not literal colors.** Every color, radius, shadow should come
   from CSS variables defined in `assets/base.css` and overridden by a theme.
   Good: `color: var(--text-1)`. Bad: `color: #111`.
